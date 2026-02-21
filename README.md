@@ -59,12 +59,12 @@ Stillwaters addresses the gap many people feel between their faith tradition and
   - Install: [https://nodejs.org/](https://nodejs.org/)  
   - Verify: `node -v` and `npm -v`
 
-- **PostgreSQL** (e.g. 14 or 16)  
+- **PostgreSQL** (15 recommended)  
   - Install: [https://www.postgresql.org/download/](https://www.postgresql.org/download/)  
   - Verify: `psql --version` and that the PostgreSQL server is running
 
 - **psql** (included with PostgreSQL)  
-  - Ensure `psql` is on your system PATH so you can run the schema and seed scripts.
+  - Ensure `psql` is on your system PATH. On Windows, PostgreSQL is often at `C:\Program Files\PostgreSQL\<version>\bin`—add this to your PATH, or use the full path (e.g. `& "C:\Program Files\PostgreSQL\15\bin\psql.exe"`).
 
 ---
 
@@ -76,13 +76,13 @@ Stillwaters addresses the gap many people feel between their faith tradition and
    ```bash
    npm install
    ```
-   If you use pnpm: `pnpm install`. If you see peer dependency warnings, you can use `npm install --legacy-peer-deps` if needed.
+   (This project includes `.npmrc` with `legacy-peer-deps=true` to resolve peer dependency conflicts.)
 
 3. **Create the PostgreSQL database:**
    ```bash
    createdb stillwaters
    ```
-   (Or create a database named `stillwaters` via your PostgreSQL tooling.)
+   On Windows, if `createdb` is not in PATH, use the full path (e.g. `& "C:\Program Files\PostgreSQL\15\bin\createdb.exe" stillwaters`) or create the database via pgAdmin.
 
 4. **Run the schema and seed scripts** (from the project root):
    ```bash

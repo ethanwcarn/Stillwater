@@ -1,6 +1,16 @@
 -- Stillwaters Seed Data
 -- Run after schema.sql: psql -d stillwaters -f db/seed.sql
 
+-- Make seed re-runnable without duplicate key errors
+TRUNCATE TABLE
+  user_post_bookmarks,
+  post_comments,
+  community_posts,
+  therapist_specialties,
+  therapists,
+  users
+RESTART IDENTITY CASCADE;
+
 -- Users (id 1 = Sarah, test user)
 INSERT INTO users (id, email, password_hash, display_name, faith_tradition) VALUES
 (1, 'sarah@example.com', NULL, 'Sarah', 'Christianity'),
@@ -8,15 +18,10 @@ INSERT INTO users (id, email, password_hash, display_name, faith_tradition) VALU
 (3, 'jordan@example.com', NULL, 'Jordan', NULL),
 (4, 'ana@example.com', NULL, 'Ana', 'Judaism');
 
--- Reset sequence
-SELECT setval('users_id_seq', 4);
-
 -- Therapists
 INSERT INTO therapists (id, name, credentials, bio, faith_tradition) VALUES
 (1, 'Dr. Elena Rivera', 'PhD, LPC', 'Faith-integrated therapist with 15 years experience.', 'Christianity'),
 (2, 'Ahmed Hassan', 'LCSW', 'Provides culturally-sensitive mental health support.', 'Islam');
-
-SELECT setval('therapists_id_seq', 2);
 
 -- Therapist Specialties
 INSERT INTO therapist_specialties (therapist_id, specialty) VALUES
@@ -32,8 +37,6 @@ INSERT INTO community_posts (id, author_id, title, content) VALUES
 (2, 2, 'Ramadan and mental wellness', 'How do others balance fasting with their mental health routine? Looking for tips.'),
 (3, 3, 'Meditation + faith', 'Anyone here combine meditation with their faith practice? Would love to hear your approach.'),
 (4, 1, 'Gratitude journaling', 'Started a gratitude journal last month. Noticing small blessings has shifted my perspective.');
-
-SELECT setval('community_posts_id_seq', 4);
 
 -- Post Comments
 INSERT INTO post_comments (post_id, author_id, content) VALUES

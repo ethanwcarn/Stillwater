@@ -10,6 +10,36 @@ export function SignInForm() {
   const [password, setPassword] = useState('')
   const [showForm, setShowForm] = useState(false)
 
+  const [emailError, setEmailError] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+
+  function validateForm() {
+    let isValid = true
+
+    setEmailError('')
+    setPasswordError('')
+
+    // Email validation
+    if (!email.trim()) {
+      setEmailError('Email is required.')
+      isValid = false
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      setEmailError('Please enter a valid email address.')
+      isValid = false
+    }
+
+    // Password validation
+    if (!password.trim()) {
+      setPasswordError('Password is required.')
+      isValid = false
+    } else if (password.length < 8) {
+      setPasswordError('Password must be at least 8 characters long.')
+      isValid = false
+    }
+
+    return isValid
+  }
+
   if (userEmail) {
     return (
       <div className="rounded-lg border bg-card p-4">
@@ -34,10 +64,14 @@ export function SignInForm() {
       >
         {showForm ? 'Hide sign in' : 'Sign in (mock auth)'}
       </button>
+
       {showForm && (
         <form
           onSubmit={(e) => {
             e.preventDefault()
+
+            if (!validateForm()) return
+
             signIn(email, password)
           }}
           className="mt-4 space-y-3"
@@ -53,11 +87,16 @@ export function SignInForm() {
               onChange={(e) => setEmail(e.target.value)}
               className={cn(
                 'mt-1 w-full rounded border bg-background px-3 py-2 text-foreground',
-                'border-input focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring'
+                'focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring',
+                emailError ? 'border-red-500' : 'border-input'
               )}
               placeholder="sarah@example.com"
             />
+            {emailError && (
+              <p className="mt-1 text-sm text-red-500">{emailError}</p>
+            )}
           </div>
+
           <div>
             <label htmlFor="password" className="block text-sm text-muted-foreground">
               Password
@@ -69,11 +108,16 @@ export function SignInForm() {
               onChange={(e) => setPassword(e.target.value)}
               className={cn(
                 'mt-1 w-full rounded border bg-background px-3 py-2 text-foreground',
-                'border-input focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring'
+                'focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring',
+                passwordError ? 'border-red-500' : 'border-input'
               )}
-              placeholder="(any password works)"
+              placeholder="Enter your password"
             />
+            {passwordError && (
+              <p className="mt-1 text-sm text-red-500">{passwordError}</p>
+            )}
           </div>
+
           <button
             type="submit"
             className="rounded bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"

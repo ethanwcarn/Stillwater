@@ -10,6 +10,22 @@ Stillwaters addresses the gap many people feel between their faith tradition and
 
 ---
 
+## Working Features
+
+The following features are currently implemented and working in the app:
+
+- **Sign in / Create account UI** with client-side mock authentication
+- **Email and password input validation** on the sign-in flow
+- **Create account flow** with password confirmation validation
+- **Forgot password flow** that sends a password reset request through the app API
+- **Community feed** that displays seeded community posts from the database
+- **Bookmark / unbookmark posts** from the community feed
+- **Persistent bookmarks** saved in PostgreSQL and retained after page refresh
+- **Therapists page** with a faith-informed therapist directory placeholder
+- **Responsive navigation and layout improvements** for mobile and desktop screens
+
+---
+
 ## Tech Stack
 
 | Layer | Technology |

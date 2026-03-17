@@ -6,37 +6,40 @@ export default function CommunityPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
-        <nav className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
+        <nav className="mx-auto flex max-w-4xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
           <Link href="/" className="text-xl font-semibold text-primary">
             Stillwaters
           </Link>
-          <div className="flex items-center gap-6">
+
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
             <Link
               href="/"
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground sm:text-base"
             >
               <Home size={18} />
-              <span>Home</span>
+              <span className="hidden sm:inline">Home</span>
             </Link>
+
             <Link
               href="/community"
-              className="flex items-center gap-2 font-medium text-foreground"
+              className="flex items-center gap-2 text-sm font-medium text-foreground sm:text-base"
             >
               <MessageCircle size={18} />
-              <span>Community</span>
+              <span className="hidden sm:inline">Community</span>
             </Link>
+
             <Link
               href="/therapists"
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground sm:text-base"
             >
               <Heart size={18} />
-              <span>Therapists</span>
+              <span className="hidden sm:inline">Therapists</span>
             </Link>
           </div>
         </nav>
       </header>
 
-      <main className="mx-auto max-w-4xl px-4 py-8">
+      <main className="mx-auto w-full max-w-4xl px-4 py-6 sm:px-6 sm:py-8">
         <CommunityFeed />
       </main>
     </div>

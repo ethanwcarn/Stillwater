@@ -4,11 +4,18 @@ import { useState } from 'react'
 import { useAuth } from '@/app/providers'
 import { cn } from '@/lib/utils'
 
+type Mode = 'signin' | 'signup'
+
 export function SignInForm() {
-  const { userEmail, signIn, signOut } = useAuth()
-  const [email, setEmail] = useState('sarah@example.com')
-  const [password, setPassword] = useState('')
+  const { userEmail, signIn, signUp, signOut } = useAuth()
+  const [mode, setMode] = useState<Mode>('signin')
   const [showForm, setShowForm] = useState(false)
+  const [email, setEmail] = useState('')
+  const [displayName, setDisplayName] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
   if (userEmail) {
     return (
@@ -26,61 +33,153 @@ export function SignInForm() {
     )
   }
 
+  function switchMode(next: Mode) {
+    setMode(next)
+    setError(null)
+    setPassword('')
+    setConfirmPassword('')
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setError(null)
+
+    if (mode === 'signup' && password !== confirmPassword) {
+      setError('Passwords do not match')
+      return
+    }
+
+    setLoading(true)
+    const err =
+      mode === 'signin'
+        ? await signIn(email, password)
+        : await signUp(email, password, displayName || undefined)
+    setLoading(false)
+
+    if (err) setError(err)
+  }
+
+  const inputClass = cn(
+    'mt-1 w-full rounded border bg-background px-3 py-2 text-foreground',
+    'border-input focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring'
+  )
+
   return (
     <div className="rounded-lg border bg-card p-4">
       <button
         onClick={() => setShowForm(!showForm)}
         className="text-sm font-medium text-primary hover:underline"
       >
-        {showForm ? 'Hide sign in' : 'Sign in (mock auth)'}
+        {showForm ? 'Hide' : 'Sign in / Create account'}
       </button>
+
       {showForm && (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault()
-            signIn(email, password)
-          }}
-          className="mt-4 space-y-3"
-        >
-          <div>
-            <label htmlFor="email" className="block text-sm text-muted-foreground">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+        <>
+          {/* Tab toggle */}
+          <div className="mt-4 flex gap-4 border-b border-border">
+            <button
+              onClick={() => switchMode('signin')}
               className={cn(
-                'mt-1 w-full rounded border bg-background px-3 py-2 text-foreground',
-                'border-input focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring'
+                'pb-2 text-sm font-medium',
+                mode === 'signin'
+                  ? 'border-b-2 border-primary text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
               )}
-              placeholder="sarah@example.com"
-            />
-          </div>
-          <div>
-            <label htmlFor="password" className="block text-sm text-muted-foreground">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+            >
+              Sign in
+            </button>
+            <button
+              onClick={() => switchMode('signup')}
               className={cn(
-                'mt-1 w-full rounded border bg-background px-3 py-2 text-foreground',
-                'border-input focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring'
+                'pb-2 text-sm font-medium',
+                mode === 'signup'
+                  ? 'border-b-2 border-primary text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
               )}
-              placeholder="(any password works)"
-            />
+            >
+              Create account
+            </button>
           </div>
-          <button
-            type="submit"
-            className="rounded bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
-          >
-            Sign in
-          </button>
-        </form>
+
+          <form onSubmit={handleSubmit} className="mt-4 space-y-3">
+            {mode === 'signup' && (
+              <div>
+                <label htmlFor="displayName" className="block text-sm text-muted-foreground">
+                  Display name <span className="text-xs">(optional)</span>
+                </label>
+                <input
+                  id="displayName"
+                  type="text"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  className={inputClass}
+                  placeholder="Your name"
+                />
+              </div>
+            )}
+
+            <div>
+              <label htmlFor="email" className="block text-sm text-muted-foreground">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className={inputClass}
+                placeholder="you@example.com"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm text-muted-foreground">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className={inputClass}
+                placeholder={mode === 'signup' ? 'At least 8 characters' : ''}
+              />
+            </div>
+
+            {mode === 'signup' && (
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm text-muted-foreground">
+                  Confirm password
+                </label>
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  className={inputClass}
+                  placeholder="Repeat password"
+                />
+              </div>
+            )}
+
+            {error && (
+              <p className="text-sm text-destructive">{error}</p>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="rounded bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
+            >
+              {loading
+                ? mode === 'signin' ? 'Signing in…' : 'Creating account…'
+                : mode === 'signin' ? 'Sign in' : 'Create account'}
+            </button>
+          </form>
+        </>
       )}
     </div>
   )

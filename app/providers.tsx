@@ -4,7 +4,8 @@ import { createContext, useContext, useState, useCallback, ReactNode } from 'rea
 
 type AuthContextType = {
   userEmail: string | null
-  signIn: (email: string, _password: string) => void
+  signIn: (email: string, password: string) => Promise<string | null>
+  signUp: (email: string, password: string, displayName?: string) => Promise<string | null>
   signOut: () => void
 }
 
@@ -42,9 +43,41 @@ function setUserEmailCookie(email: string | null) {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [userEmail, setUserEmail] = useState<string | null>(() => getInitialUserEmail())
 
-  const signIn = useCallback((email: string, _password: string) => {
+  const signIn = useCallback(async (email: string, password: string): Promise<string | null> => {
+    const res = await fetch('/api/auth/signin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    })
+
+    if (!res.ok) {
+      const data = await res.json()
+      return data.error ?? 'Sign in failed'
+    }
+
+    setUserEmail(email)
+    return null
+  }, [])
+
+  const signUp = useCallback(async (
+    email: string,
+    password: string,
+    displayName?: string
+  ): Promise<string | null> => {
+    const res = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, displayName }),
+    })
+
+    if (!res.ok) {
+      const data = await res.json()
+      return data.error ?? 'Sign up failed'
+    }
+
     setUserEmail(email)
     setUserEmailCookie(email)
+    return null
   }, [])
 
   const signOut = useCallback(() => {
@@ -53,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ userEmail, signIn, signOut }}>
+    <AuthContext.Provider value={{ userEmail, signIn, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   )

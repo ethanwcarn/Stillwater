@@ -24,25 +24,48 @@ function resolveFaithFilter(value: string | string[] | undefined): string | unde
   return faithList.includes(t) ? t : undefined
 }
 
-async function getTherapists(faith?: string): Promise<Therapist[]> {
+function resolveKeywordFilter(value: string | string[] | undefined): string | undefined {
+  const raw = Array.isArray(value) ? value[0] : value
+  const trimmed = raw?.trim()
+  return trimmed ? trimmed.slice(0, 100) : undefined
+}
+
+async function getTherapists(faith?: string, keyword?: string): Promise<Therapist[]> {
   try {
+    const filters: string[] = []
+    const values: string[] = []
+
     if (faith) {
-      const result = await query<Therapist>(
-        `
-        SELECT id, name, credentials, bio, faith_tradition
-        FROM therapists
-        WHERE faith_tradition = $1
-        ORDER BY name
-      `,
-        [faith]
-      )
-      return result.rows
+      values.push(faith)
+      filters.push(`t.faith_tradition = $${values.length}`)
     }
-    const result = await query<Therapist>(`
-      SELECT id, name, credentials, bio, faith_tradition
-      FROM therapists
-      ORDER BY name
-    `)
+
+    if (keyword) {
+      values.push(`%${keyword}%`)
+      const paramRef = `$${values.length}`
+      filters.push(`(
+        t.name ILIKE ${paramRef}
+        OR COALESCE(t.credentials, '') ILIKE ${paramRef}
+        OR COALESCE(t.bio, '') ILIKE ${paramRef}
+        OR EXISTS (
+          SELECT 1
+          FROM therapist_specialties ts
+          WHERE ts.therapist_id = t.id
+            AND ts.specialty ILIKE ${paramRef}
+        )
+      )`)
+    }
+
+    const whereClause = filters.length > 0 ? `WHERE ${filters.join(' AND ')}` : ''
+    const result = await query<Therapist>(
+      `
+      SELECT t.id, t.name, t.credentials, t.bio, t.faith_tradition
+      FROM therapists t
+      ${whereClause}
+      ORDER BY t.name
+    `,
+      values
+    )
     return result.rows
   } catch {
     return []
@@ -50,7 +73,7 @@ async function getTherapists(faith?: string): Promise<Therapist[]> {
 }
 
 type TherapistsPageProps = {
-  searchParams: Promise<{ faith?: string | string[] }>
+  searchParams: Promise<{ faith?: string | string[]; query?: string | string[] }>
 }
 
 function FaithFilterFallback() {
@@ -65,7 +88,8 @@ function FaithFilterFallback() {
 export default async function TherapistsPage({ searchParams }: TherapistsPageProps) {
   const params = await searchParams
   const faithFilter = resolveFaithFilter(params.faith)
-  const therapists = await getTherapists(faithFilter)
+  const keywordFilter = resolveKeywordFilter(params.query)
+  const therapists = await getTherapists(faithFilter, keywordFilter)
 
   return (
     <div className="min-h-screen">
@@ -103,13 +127,22 @@ export default async function TherapistsPage({ searchParams }: TherapistsPagePro
           <div className="rounded-2xl border bg-card p-6 text-muted-foreground">
             {faithFilter ? (
               <p>
-                No therapists for this tradition yet.{' '}
+                No therapists match the current filters.{' '}
                 <Link href="/therapists" className="font-medium text-primary underline-offset-4 hover:underline">
-                  Show all therapists
+                  Clear filters
                 </Link>
               </p>
             ) : (
-              'No therapists are available yet.'
+              keywordFilter ? (
+                <p>
+                  No therapists match "{keywordFilter}".{' '}
+                  <Link href="/therapists" className="font-medium text-primary underline-offset-4 hover:underline">
+                    Show all therapists
+                  </Link>
+                </p>
+              ) : (
+                'No therapists are available yet.'
+              )
             )}
           </div>
         ) : (

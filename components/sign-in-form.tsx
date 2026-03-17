@@ -1,21 +1,50 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from '@/app/providers'
 import { cn } from '@/lib/utils'
 
 type Mode = 'signin' | 'signup'
 
-export function SignInForm() {
+type SignInFormProps = {
+  initialAuthMode?: Mode
+  initiallyOpen?: boolean
+  passwordResetSuccess?: boolean
+}
+
+export function SignInForm({
+  initialAuthMode = 'signin',
+  initiallyOpen = false,
+  passwordResetSuccess = false,
+}: SignInFormProps) {
   const { userEmail, signIn, signUp, signOut } = useAuth()
-  const [mode, setMode] = useState<Mode>('signin')
-  const [showForm, setShowForm] = useState(false)
+  const [mode, setMode] = useState<Mode>(initialAuthMode)
+  const [showForm, setShowForm] = useState(initiallyOpen || passwordResetSuccess)
   const [email, setEmail] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [sendingResetLink, setSendingResetLink] = useState(false)
+
+  useEffect(() => {
+    if (initialAuthMode === 'signin' || initialAuthMode === 'signup') {
+      setMode(initialAuthMode)
+      setShowForm(initiallyOpen || passwordResetSuccess)
+    } else if (passwordResetSuccess) {
+      setMode('signin')
+      setShowForm(true)
+    }
+
+    if (passwordResetSuccess) {
+      setError(null)
+      setMessage('Your password has been reset. Sign in with your new password.')
+      setPassword('')
+      setConfirmPassword('')
+    }
+  }, [initialAuthMode, initiallyOpen, passwordResetSuccess])
 
   if (userEmail) {
     return (
@@ -36,6 +65,7 @@ export function SignInForm() {
   function switchMode(next: Mode) {
     setMode(next)
     setError(null)
+    setMessage(null)
     setPassword('')
     setConfirmPassword('')
   }
@@ -43,26 +73,58 @@ export function SignInForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+    setMessage(null)
 
     if (mode === 'signup' && password !== confirmPassword) {
       setError('Passwords do not match')
       return
     }
 
-    setLoading(true)
+    setSubmitting(true)
     const err =
       mode === 'signin'
         ? await signIn(email, password)
         : await signUp(email, password, displayName || undefined)
-    setLoading(false)
+    setSubmitting(false)
 
     if (err) setError(err)
+  }
+
+  async function handleForgotPassword() {
+    setError(null)
+    setMessage(null)
+
+    if (!email.trim()) {
+      setError('Enter your email first')
+      return
+    }
+
+    setSendingResetLink(true)
+
+    const res = await fetch('/api/auth/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    })
+
+    const data = await res.json().catch(() => null)
+    setSendingResetLink(false)
+
+    if (!res.ok) {
+      setError(data?.error ?? 'Unable to send the password reset email')
+      return
+    }
+
+    setMessage(
+      data?.message ?? 'If an account exists for that email, we sent a password reset link.'
+    )
   }
 
   const inputClass = cn(
     'mt-1 w-full rounded border bg-background px-3 py-2 text-foreground',
     'border-input focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring'
   )
+  const isBusy = submitting || sendingResetLink
 
   return (
     <div className="rounded-lg border bg-card p-4">
@@ -168,16 +230,30 @@ export function SignInForm() {
             {error && (
               <p className="text-sm text-destructive">{error}</p>
             )}
+            {message && (
+              <p className="text-sm text-primary">{message}</p>
+            )}
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={isBusy}
               className="rounded bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
             >
-              {loading
+              {submitting
                 ? mode === 'signin' ? 'Signing in…' : 'Creating account…'
                 : mode === 'signin' ? 'Sign in' : 'Create account'}
             </button>
+
+            {mode === 'signin' && (
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                disabled={isBusy}
+                className="block text-sm text-primary hover:underline disabled:opacity-50"
+              >
+                {sendingResetLink ? 'Sending reset link…' : 'Forgot password?'}
+              </button>
+            )}
           </form>
         </>
       )}

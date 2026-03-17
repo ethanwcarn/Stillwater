@@ -78,18 +78,17 @@ Stillwaters addresses the gap many people feel between their faith tradition and
    ```
    (This project includes `.npmrc` with `legacy-peer-deps=true` to resolve peer dependency conflicts.)
 
-3. **Create the PostgreSQL database:**
+3. **Run the schema script first** (from the project root):
    ```bash
-   createdb stillwaters
+   psql -d postgres -f db/schema.sql
    ```
-   On Windows, if `createdb` is not in PATH, use the full path (e.g. `& "C:\Program Files\PostgreSQL\15\bin\createdb.exe" stillwaters`) or create the database via pgAdmin.
+   This script now creates the `stillwaters` database automatically (if missing), switches into it, and creates all tables.
 
-4. **Run the schema and seed scripts** (from the project root):
+4. **Run the seed script:**
    ```bash
-   psql -d stillwaters -f db/schema.sql
    psql -d stillwaters -f db/seed.sql
    ```
-   This creates the tables and inserts sample data, including a test user and community posts.
+   The seed is re-runnable (it truncates and repopulates tables), so you can run it repeatedly while developing.
 
 5. **Configure the database URL**  
    Copy the example env file and set your connection string:
@@ -166,9 +165,21 @@ If all of the above hold, the vertical slice is working: the button triggers bac
 To recreate the database from scratch:
 
 ```bash
-psql -d stillwaters -f db/schema.sql
+psql -d postgres -f db/schema.sql
 psql -d stillwaters -f db/seed.sql
 ```
+
+### Troubleshooting local SQL setup
+
+If `schema.sql` or `seed.sql` fails on your machine, the most common cause is running against the wrong database or user. Use this checklist:
+
+1. Verify PostgreSQL is running: `pg_isready` (or check the service manager on your OS).
+2. Verify your current DB user: `psql -d postgres -c "SELECT current_user;"`.
+3. Verify the app DB exists: `psql -d postgres -c "SELECT datname FROM pg_database WHERE datname='stillwaters';"`.
+4. Recreate schema + data in order:
+   - `psql -d postgres -f db/schema.sql`
+   - `psql -d stillwaters -f db/seed.sql`
+5. Verify seeded rows: `psql -d stillwaters -c "SELECT COUNT(*) FROM community_posts;"` (should return 4 with current seed).
 
 ---
 

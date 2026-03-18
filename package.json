@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --turbo",
     "build": "next build",
+    "migrate": "node scripts/migrate.mjs",
     "start": "next start -p 4041",
     "lint": "next lint"
   },

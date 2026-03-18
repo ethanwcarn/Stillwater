@@ -1,5 +1,16 @@
 -- Stillwaters Database Schema
--- Run: psql -d stillwaters -f db/schema.sql
+-- Preferred run command: psql -d postgres -f db/schema.sql
+--
+-- Why run against "postgres" first?
+-- This script creates the "stillwaters" database if it does not exist,
+-- then switches into it before creating tables.
+
+-- Create database if missing (PostgreSQL does not support CREATE DATABASE IF NOT EXISTS)
+SELECT 'CREATE DATABASE stillwaters'
+WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'stillwaters')\gexec
+
+-- Ensure subsequent table creation runs inside the app database
+\connect stillwaters
 
 -- Drop existing tables (order matters for foreign keys)
 DROP TABLE IF EXISTS password_reset_tokens;

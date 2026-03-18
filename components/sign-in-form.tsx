@@ -29,6 +29,10 @@ export function SignInForm({
   const [submitting, setSubmitting] = useState(false)
   const [sendingResetLink, setSendingResetLink] = useState(false)
 
+  const [emailError, setEmailError] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+  const [confirmPasswordError, setConfirmPasswordError] = useState('')
+
   useEffect(() => {
     if (initialAuthMode === 'signin' || initialAuthMode === 'signup') {
       setMode(initialAuthMode)
@@ -66,8 +70,48 @@ export function SignInForm({
     setMode(next)
     setError(null)
     setMessage(null)
+    setEmailError('')
+    setPasswordError('')
+    setConfirmPasswordError('')
     setPassword('')
     setConfirmPassword('')
+  }
+
+  function validateForm() {
+    let isValid = true
+
+    setEmailError('')
+    setPasswordError('')
+    setConfirmPasswordError('')
+    setError(null)
+
+    if (!email.trim()) {
+      setEmailError('Email is required.')
+      isValid = false
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      setEmailError('Please enter a valid email address.')
+      isValid = false
+    }
+
+    if (!password.trim()) {
+      setPasswordError('Password is required.')
+      isValid = false
+    } else if (password.length < 8) {
+      setPasswordError('Password must be at least 8 characters long.')
+      isValid = false
+    }
+
+    if (mode === 'signup') {
+      if (!confirmPassword.trim()) {
+        setConfirmPasswordError('Please confirm your password.')
+        isValid = false
+      } else if (password !== confirmPassword) {
+        setConfirmPasswordError('Passwords do not match.')
+        isValid = false
+      }
+    }
+
+    return isValid
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -75,10 +119,7 @@ export function SignInForm({
     setError(null)
     setMessage(null)
 
-    if (mode === 'signup' && password !== confirmPassword) {
-      setError('Passwords do not match')
-      return
-    }
+    if (!validateForm()) return
 
     setSubmitting(true)
     const err =
@@ -96,6 +137,11 @@ export function SignInForm({
 
     if (!email.trim()) {
       setError('Enter your email first')
+      return
+    }
+
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setEmailError('Please enter a valid email address.')
       return
     }
 
@@ -120,10 +166,13 @@ export function SignInForm({
     )
   }
 
-  const inputClass = cn(
-    'mt-1 w-full rounded border bg-background px-3 py-2 text-foreground',
-    'border-input focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring'
-  )
+  const inputClass = (hasError = false) =>
+    cn(
+      'mt-1 w-full rounded border bg-background px-3 py-2 text-foreground',
+      'focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring',
+      hasError ? 'border-red-500' : 'border-input'
+    )
+
   const isBusy = submitting || sendingResetLink
 
   return (
@@ -137,9 +186,9 @@ export function SignInForm({
 
       {showForm && (
         <>
-          {/* Tab toggle */}
           <div className="mt-4 flex gap-4 border-b border-border">
             <button
+              type="button"
               onClick={() => switchMode('signin')}
               className={cn(
                 'pb-2 text-sm font-medium',
@@ -151,6 +200,7 @@ export function SignInForm({
               Sign in
             </button>
             <button
+              type="button"
               onClick={() => switchMode('signup')}
               className={cn(
                 'pb-2 text-sm font-medium',
@@ -174,7 +224,7 @@ export function SignInForm({
                   type="text"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className={inputClass}
+                  className={inputClass()}
                   placeholder="Your name"
                 />
               </div>
@@ -189,10 +239,10 @@ export function SignInForm({
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                required
-                className={inputClass}
+                className={inputClass(!!emailError)}
                 placeholder="you@example.com"
               />
+              {emailError && <p className="mt-1 text-sm text-red-500">{emailError}</p>}
             </div>
 
             <div>
@@ -204,10 +254,10 @@ export function SignInForm({
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
-                className={inputClass}
-                placeholder={mode === 'signup' ? 'At least 8 characters' : ''}
+                className={inputClass(!!passwordError)}
+                placeholder={mode === 'signup' ? 'At least 8 characters' : 'Enter your password'}
               />
+              {passwordError && <p className="mt-1 text-sm text-red-500">{passwordError}</p>}
             </div>
 
             {mode === 'signup' && (
@@ -220,19 +270,17 @@ export function SignInForm({
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  className={inputClass}
+                  className={inputClass(!!confirmPasswordError)}
                   placeholder="Repeat password"
                 />
+                {confirmPasswordError && (
+                  <p className="mt-1 text-sm text-red-500">{confirmPasswordError}</p>
+                )}
               </div>
             )}
 
-            {error && (
-              <p className="text-sm text-destructive">{error}</p>
-            )}
-            {message && (
-              <p className="text-sm text-primary">{message}</p>
-            )}
+            {error && <p className="text-sm text-destructive">{error}</p>}
+            {message && <p className="text-sm text-primary">{message}</p>}
 
             <button
               type="submit"
@@ -240,8 +288,12 @@ export function SignInForm({
               className="rounded bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
             >
               {submitting
-                ? mode === 'signin' ? 'Signing in…' : 'Creating account…'
-                : mode === 'signin' ? 'Sign in' : 'Create account'}
+                ? mode === 'signin'
+                  ? 'Signing in…'
+                  : 'Creating account…'
+                : mode === 'signin'
+                  ? 'Sign in'
+                  : 'Create account'}
             </button>
 
             {mode === 'signin' && (

@@ -47,4 +47,4 @@ jobs:
             set +a
             npm run migrate
             npm run build
-            pm2 restart stillwater
+            /home/ubuntu/.nvm/versions/node/v24.4.1/bin/pm2 restart stillwater

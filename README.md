@@ -1,3 +1,36 @@
+# Current sprint EARS requirements: 
+
+1. User Account Creation (Ubiquitous/Event-Driven)
+Pattern: Event-Driven (When <trigger>, the <system> shall <response>)
+
+Requirement: When a new user submits the registration form with a unique email and matching passwords, the system shall create a new record in the users table and redirect the user to the onboarding flow.
+
+Requirement: When a user attempts to register with an email that already exists in the database, the system shall display an "Email already in use" error message.
+
+2. User Login (State-Driven)
+Pattern: State-Driven (While <state>, the <system> shall <action>)
+
+Requirement: While the user is unauthenticated, the system shall restrict access to the Community Feed and Therapist Directory, redirecting any access attempts to the Login page.
+
+Requirement: When a user provides valid credentials, the system shall transition the user to an "Authenticated" state and initiate a persistent session.
+
+3. User Logout (Event-Driven)
+Pattern: Event-Driven
+
+Requirement: When the user selects the "Log Out" option in the navigation menu, the system shall terminate the current session and redirect the user to the landing page.
+
+4. Landing Page (Ubiquitous)
+Pattern: Ubiquitous (The <system> shall <response>)
+
+Requirement: The system shall display a responsive landing page that includes a value proposition for faith-integrated mental health and clear call-to-action buttons for "Sign In" and "Get Started."
+
+5. Error Handling & Robustness (Unwanted Behavior)
+Pattern: Unwanted Behavior (If <trigger>, then the <system> shall <response>)
+
+Requirement: If the database connection is unavailable during a login attempt, then the system shall display a descriptive error message to the user and log the exception details for administrative review.
+
+Requirement: If a user submits a password that does not meet the complexity requirements (min 8 characters), then the system shall prevent form submission and highlight the specific validation failure.
+
 # Stillwaters — Faith-Integrated Mental Health
 
 A calming web application that connects people with faith-aware mental health support, community, and resources.

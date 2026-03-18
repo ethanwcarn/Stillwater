@@ -21,9 +21,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${inter.className} min-h-screen antialiased`}>
         <AuthProvider>
-          <GlobalNav /> {/* Nav is now global and has sign-out! */}
+          <GlobalNav /> { /* nav is now glbal and has sign out */}
           {children}
         </AuthProvider>
       </body>

@@ -2,7 +2,24 @@ import Link from 'next/link'
 import { Home, MessageCircle, Heart } from 'lucide-react'
 import { SignInForm } from '@/components/sign-in-form'
 
-export default function HomePage() {
+type HomePageProps = {
+  searchParams: Promise<{
+    auth?: string | string[]
+    passwordReset?: string | string[]
+  }>
+}
+
+export default async function HomePage({ searchParams }: HomePageProps) {
+  const params = await searchParams
+  const authParam = Array.isArray(params.auth) ? params.auth[0] : params.auth
+  const passwordResetParam = Array.isArray(params.passwordReset)
+    ? params.passwordReset[0]
+    : params.passwordReset
+  const initialAuthMode = authParam === 'signup' ? 'signup' : 'signin'
+  const passwordResetSuccess = passwordResetParam === 'success'
+  const initiallyOpen =
+    authParam === 'signin' || authParam === 'signup' || passwordResetSuccess
+
   return (
     <div className="min-h-screen bg-background">
         <nav className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
@@ -42,7 +59,11 @@ export default function HomePage() {
           </p>
         </section>
 
-        <SignInForm />
+        <SignInForm
+          initialAuthMode={initialAuthMode}
+          initiallyOpen={initiallyOpen}
+          passwordResetSuccess={passwordResetSuccess}
+        />
 
         <section className="mt-12 grid gap-4 sm:grid-cols-2">
           <Link

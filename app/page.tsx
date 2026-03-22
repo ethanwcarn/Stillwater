@@ -1,93 +1,176 @@
 import Link from 'next/link'
-import { Home, MessageCircle, Heart } from 'lucide-react'
-import { SignInForm } from '@/components/sign-in-form'
+import { Search, CalendarPlus, Users, MessageCircle, Heart } from 'lucide-react'
 
-type HomePageProps = {
-  searchParams: Promise<{
-    auth?: string | string[]
-    passwordReset?: string | string[]
-  }>
-}
-
-export default async function HomePage({ searchParams }: HomePageProps) {
-  const params = await searchParams
-  const authParam = Array.isArray(params.auth) ? params.auth[0] : params.auth
-  const passwordResetParam = Array.isArray(params.passwordReset)
-    ? params.passwordReset[0]
-    : params.passwordReset
-  const initialAuthMode = authParam === 'signup' ? 'signup' : 'signin'
-  const passwordResetSuccess = passwordResetParam === 'success'
-  const initiallyOpen =
-    authParam === 'signin' || authParam === 'signup' || passwordResetSuccess
-
+export default function HomePage() {
   return (
-    <div className="min-h-screen bg-background">
-        <nav className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
-          <h1 className="text-xl font-semibold text-primary">Stillwaters</h1>
-          <div className="flex items-center gap-6">
+    <div className="min-h-screen">
+
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-secondary/15 to-muted px-4 py-20 text-center md:py-32">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,hsl(var(--secondary)/0.12),transparent_60%)]" />
+        <div className="relative mx-auto max-w-3xl">
+          <h1 className="font-serif text-4xl font-bold leading-tight tracking-tight text-foreground md:text-6xl">
+            <span className="text-balance">Faith, without fear.</span>
+          </h1>
+          <p className="mt-4 font-serif text-2xl text-accent md:text-3xl">
+            <span className="text-balance">Support, without judgment.</span>
+          </p>
+          <p className="mx-auto mt-6 max-w-lg text-base leading-relaxed text-muted-foreground md:text-lg">
+            A safe space where your mental health and spiritual life work together.
+            Connect with faith-informed therapists and a caring community.
+          </p>
+          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
-              href="/"
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+              href="/signup"
+              className="w-full rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 sm:w-auto"
             >
-              <Home size={18} />
-              <span>Home</span>
+              Create an Account
             </Link>
             <Link
-              href="/community"
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+              href="/signin"
+              className="w-full rounded-full bg-white/80 border border-primary/30 px-8 py-3 text-sm font-medium text-foreground transition-colors hover:bg-white sm:w-auto"
             >
-              <MessageCircle size={18} />
-              <span>Community</span>
-            </Link>
-            <Link
-              href="/therapists"
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
-            >
-              <Heart size={18} />
-              <span>Therapists</span>
+              Log In
             </Link>
           </div>
-        </nav>
+        </div>
+      </section>
 
-      <main className="mx-auto max-w-4xl px-4 py-12">
-        <section className="mb-12 text-center">
-          <h2 className="mb-2 text-3xl font-bold text-foreground">
-            Faith-Integrated Mental Health
+      {/* How It Works */}
+      <section className="px-4 py-16 md:py-24">
+        <div className="mx-auto max-w-5xl">
+          <h2 className="text-center font-serif text-2xl font-semibold text-foreground md:text-3xl">
+            <span className="text-balance">How Stillwaters Works</span>
           </h2>
-          <p className="text-muted-foreground">
-            Connect with faith-aware support, community, and resources.
+          <p className="mx-auto mt-3 max-w-lg text-center text-muted-foreground">
+            Three simple steps to begin your healing journey
           </p>
-        </section>
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            {[
+              {
+                icon: Search,
+                title: 'Find Your Therapist',
+                desc: 'Browse faith-informed therapists filtered by tradition, specialty, and availability.',
+                href: '/therapists',
+              },
+              {
+                icon: CalendarPlus,
+                title: 'Request a Session',
+                desc: 'Choose your preferred date, time, and discussion topics that matter to you.',
+                href: '/signup',
+              },
+              {
+                icon: Users,
+                title: 'Join the Community',
+                desc: 'Connect with others who share your journey in faith-centered discussion groups.',
+                href: '/community',
+              },
+            ].map((step) => (
+              <Link
+                key={step.title}
+                href={step.href}
+                className="group rounded-2xl border border-border/50 bg-card p-8 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+              >
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary/20 text-accent transition-colors duration-300 group-hover:bg-secondary/30">
+                  <step.icon className="h-7 w-7" />
+                </div>
+                <h3 className="mt-5 font-serif text-lg font-semibold text-foreground">{step.title}</h3>
+                <p className="mt-2 leading-relaxed text-muted-foreground">{step.desc}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
 
-        <SignInForm
-          initialAuthMode={initialAuthMode}
-          initiallyOpen={initiallyOpen}
-          passwordResetSuccess={passwordResetSuccess}
-        />
+      {/* Community Highlights */}
+      <section className="px-4 py-16 md:py-24">
+        <div className="mx-auto max-w-5xl">
+          <div className="flex items-end justify-between">
+            <div>
+              <h2 className="font-serif text-2xl font-semibold text-foreground md:text-3xl">
+                Community Highlights
+              </h2>
+              <p className="mt-2 text-muted-foreground">
+                See what others are sharing in the Stillwaters community
+              </p>
+            </div>
+            <Link href="/community" className="hidden text-sm font-medium text-accent hover:underline md:block">
+              See all
+            </Link>
+          </div>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {[
+              { category: 'Prayer', title: 'Finding peace through prayer during anxiety', author: 'Sarah M.' },
+              { category: 'Scripture', title: 'Scriptures that helped me through depression', author: 'Jordan K.' },
+              { category: 'Interfaith', title: 'How my faith tradition views mental health', author: 'Ana R.' },
+            ].map((post) => (
+              <Link
+                key={post.title}
+                href="/community"
+                className="rounded-2xl border border-border/50 bg-card p-5 transition-all duration-300 hover:shadow-md"
+              >
+                <span className="inline-block rounded-full bg-secondary/20 px-3 py-0.5 text-xs font-medium text-accent">
+                  {post.category}
+                </span>
+                <h3 className="mt-3 font-serif text-base font-semibold text-foreground">{post.title}</h3>
+                <p className="mt-3 text-xs text-muted-foreground">{post.author}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
 
-        <section className="mt-12 grid gap-4 sm:grid-cols-2">
+      {/* CTA Band */}
+      <section className="bg-gradient-to-br from-secondary/10 via-muted to-primary/5 px-4 py-16 md:py-24">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="font-serif text-2xl font-semibold text-foreground md:text-3xl">
+            <span className="text-balance">Begin your journey today</span>
+          </h2>
+          <p className="mx-auto mt-4 max-w-md text-muted-foreground">
+            Join a growing community of people who believe mental health and faith belong together.
+          </p>
           <Link
-            href="/community"
-            className="rounded-lg border bg-card p-6 transition hover:border-primary"
+            href="/signup"
+            className="mt-8 inline-block rounded-full bg-primary px-10 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
           >
-            <MessageCircle className="mb-2 text-primary" size={32} />
-            <h3 className="font-semibold">Community</h3>
-            <p className="text-sm text-muted-foreground">
-              Join the supportive feed. Save posts with the bookmark button.
-            </p>
+            Create an Account
           </Link>
-          <Link
-            href="/therapists"
-            className="rounded-lg border bg-card p-6 transition hover:border-primary"
-          >
-            <Heart className="mb-2 text-primary" size={32} />
-            <h3 className="font-semibold">Find Therapists</h3>
-            <p className="text-sm text-muted-foreground">
-              Browse faith-informed therapists near you.
-            </p>
-          </Link>
-        </section>
-      </main>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-border bg-card px-4 py-10">
+        <div className="mx-auto max-w-5xl">
+          <div className="grid gap-8 md:grid-cols-4">
+            <div>
+              <p className="font-serif text-base font-semibold text-foreground">Stillwaters</p>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                Faith-integrated mental health support for every journey.
+              </p>
+            </div>
+            {[
+              { title: 'Platform', links: ['Find Therapists', 'Community'] },
+              { title: 'Company', links: ['About Us', 'Blog'] },
+              { title: 'Legal', links: ['Privacy Policy', 'Terms of Service'] },
+            ].map((col) => (
+              <div key={col.title}>
+                <h4 className="text-sm font-semibold text-foreground">{col.title}</h4>
+                <ul className="mt-3 flex flex-col gap-2">
+                  {col.links.map((link) => (
+                    <li key={link}>
+                      <span className="text-sm text-muted-foreground">{link}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 border-t border-border pt-6 text-center text-xs text-muted-foreground">
+            2026 Stillwaters. All rights reserved.
+          </div>
+        </div>
+      </footer>
+
     </div>
   )
 }

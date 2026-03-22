@@ -88,7 +88,7 @@ export function CommunityFeed() {
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="animate-pulse rounded-lg border bg-card p-6"
+            className="animate-pulse rounded-2xl border bg-card p-6"
           >
             <div className="mb-2 h-4 w-1/3 rounded bg-muted" />
             <div className="h-4 w-full rounded bg-muted" />
@@ -128,19 +128,19 @@ export function CommunityFeed() {
   return (
     <div className="space-y-4">
       {!userEmail && (
-        <p className="rounded-lg border bg-muted/50 p-3 text-sm text-muted-foreground">
-          Sign in to bookmark posts (use sarah@example.com / any password).
+        <p className="rounded-2xl border border-secondary/30 bg-secondary/10 p-3 text-sm text-accent">
+          Sign in to bookmark posts and save your favorites.
         </p>
       )}
       {posts.map((post) => (
         <article
           key={post.id}
-          className="rounded-lg border bg-card p-6 shadow-sm transition hover:shadow-md"
+          className="rounded-2xl border bg-card p-6 shadow-sm transition hover:shadow-md"
         >
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0 flex-1">
               {post.title && (
-                <h3 className="mb-1 font-semibold text-foreground">
+                <h3 className="mb-1 font-serif font-semibold text-foreground">
                   {post.title}
                 </h3>
               )}
@@ -155,7 +155,7 @@ export function CommunityFeed() {
                   {new Date(post.created_at).toLocaleDateString()}
                 </span>
               </p>
-              <p className="mt-2 text-foreground">{post.content}</p>
+              <p className="mt-2 text-sm leading-relaxed text-foreground">{post.content}</p>
             </div>
             <button
               onClick={() => handleBookmark(post.id, post.bookmarked)}

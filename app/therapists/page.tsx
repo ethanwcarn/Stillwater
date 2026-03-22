@@ -11,12 +11,16 @@ type Therapist = {
 }
 
 async function getTherapists(): Promise<Therapist[]> {
-  const result = await query<Therapist>(`
-    SELECT id, name, credentials, bio, faith_tradition
-    FROM therapists
-    ORDER BY name
-  `)
-  return result.rows
+  try {
+    const result = await query<Therapist>(`
+      SELECT id, name, credentials, bio, faith_tradition
+      FROM therapists
+      ORDER BY name
+    `)
+    return result.rows
+  } catch {
+    return []
+  }
 }
 
 export default async function TherapistsPage() {

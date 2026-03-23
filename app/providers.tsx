@@ -56,6 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     setUserEmail(email)
+    setUserEmailCookie(email)
     return null
   }, [])
 

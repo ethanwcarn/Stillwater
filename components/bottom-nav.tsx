@@ -8,8 +8,7 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { id: "home", label: "Home", icon: Home, path: "/" },
   { id: "therapists", label: "Therapists", icon: Search, path: "/therapists" },
-  { id: "session", label: "Session", icon: CalendarPlus, path: "/session" },
-  { id: "feed", label: "Feed", icon: MessageSquare, path: "/feed" },
+  { id: "feed", label: "Feed", icon: MessageSquare, path: "/community" },
   { id: "profile", label: "Profile", icon: User, path: "/profile" },
 ];
 

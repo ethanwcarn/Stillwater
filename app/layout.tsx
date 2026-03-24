@@ -30,7 +30,9 @@ export default function RootLayout({
             {children}
           </main>
 
-          <BottomNav />
+          <div className="md:hidden">
+            <BottomNav />
+          </div>
         </AuthProvider>
       </body>
     </html>

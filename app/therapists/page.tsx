@@ -1,5 +1,8 @@
+import { Suspense } from 'react'
 import { query } from '@/lib/db'
+import { faithTraditions } from '@/lib/faith-traditions'
 import Link from 'next/link'
+import { TherapistFaithFilter } from '@/app/therapists/therapist-faith-filter'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,8 +14,30 @@ type Therapist = {
   faith_tradition: string | null
 }
 
-async function getTherapists(): Promise<Therapist[]> {
+const faithList = faithTraditions as readonly string[]
+
+function resolveFaithFilter(value: string | string[] | undefined): string | undefined {
+  if (value === undefined) return undefined
+  const v = Array.isArray(value) ? value[0] : value
+  const t = v?.trim()
+  if (!t) return undefined
+  return faithList.includes(t) ? t : undefined
+}
+
+async function getTherapists(faith?: string): Promise<Therapist[]> {
   try {
+    if (faith) {
+      const result = await query<Therapist>(
+        `
+        SELECT id, name, credentials, bio, faith_tradition
+        FROM therapists
+        WHERE faith_tradition = $1
+        ORDER BY name
+      `,
+        [faith]
+      )
+      return result.rows
+    }
     const result = await query<Therapist>(`
       SELECT id, name, credentials, bio, faith_tradition
       FROM therapists
@@ -24,8 +49,23 @@ async function getTherapists(): Promise<Therapist[]> {
   }
 }
 
-export default async function TherapistsPage() {
-  const therapists = await getTherapists()
+type TherapistsPageProps = {
+  searchParams: Promise<{ faith?: string | string[] }>
+}
+
+function FaithFilterFallback() {
+  return (
+    <div className="flex flex-col gap-1.5 sm:max-w-xs">
+      <div className="h-4 w-24 animate-pulse rounded bg-muted" />
+      <div className="h-10 w-full animate-pulse rounded-lg bg-muted" />
+    </div>
+  )
+}
+
+export default async function TherapistsPage({ searchParams }: TherapistsPageProps) {
+  const params = await searchParams
+  const faithFilter = resolveFaithFilter(params.faith)
+  const therapists = await getTherapists(faithFilter)
 
   return (
     <div className="min-h-screen">
@@ -53,9 +93,24 @@ export default async function TherapistsPage() {
         </div>
       </div>
       <main className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
+        <div className="mb-6">
+          <Suspense fallback={<FaithFilterFallback />}>
+            <TherapistFaithFilter />
+          </Suspense>
+        </div>
+
         {therapists.length === 0 ? (
           <div className="rounded-2xl border bg-card p-6 text-muted-foreground">
-            No therapists are available yet.
+            {faithFilter ? (
+              <p>
+                No therapists for this tradition yet.{' '}
+                <Link href="/therapists" className="font-medium text-primary underline-offset-4 hover:underline">
+                  Show all therapists
+                </Link>
+              </p>
+            ) : (
+              'No therapists are available yet.'
+            )}
           </div>
         ) : (
           <section

@@ -5,18 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, ChevronDown, Check } from 'lucide-react'
 import { useAuth } from '@/app/providers'
-
-const faithTraditions = [
-  'Christianity',
-  'Islam',
-  'Judaism',
-  'Buddhism',
-  'Hinduism',
-  'Sikhism',
-  'Interfaith',
-  'Secular / No preference',
-  'Other',
-]
+import { faithTraditions } from '@/lib/faith-traditions'
 
 export default function SignUpPage() {
   const { signUp, userEmail, authReady } = useAuth()

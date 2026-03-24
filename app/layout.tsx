@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from './providers'
 import { GlobalNav } from '@/components/global-nav' // Import the new nav
+import { BottomNav } from "@/components/bottom-nav";
 
 
 const inter = Inter({ subsets: ['latin'] })
@@ -23,8 +24,15 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} min-h-screen antialiased`}>
         <AuthProvider>
-          <GlobalNav /> { /* nav is now glbal and has sign out */}
-          {children}
+          <div className="hidden md:block">
+            <GlobalNav />
+          </div>
+
+          <main className="pb-20">
+            {children}
+          </main>
+
+          <BottomNav />
         </AuthProvider>
       </body>
     </html>

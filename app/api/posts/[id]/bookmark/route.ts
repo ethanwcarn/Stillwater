@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { query } from '@/lib/db'
+import { getSessionUserFromRequest } from '@/lib/session'
 
 export async function POST(
   request: NextRequest,
@@ -12,23 +13,14 @@ export async function POST(
       return NextResponse.json({ error: 'Invalid post ID' }, { status: 400 })
     }
 
-    const body = await request.json()
-    const userEmail = body?.userEmail
-    if (!userEmail) {
+    const sessionUser = await getSessionUserFromRequest(request)
+    if (!sessionUser) {
       return NextResponse.json(
-        { error: 'userEmail required' },
-        { status: 400 }
+        { error: 'Authentication required' },
+        { status: 401 }
       )
     }
-
-    const userResult = await query<{ id: number }>(
-      'SELECT id FROM users WHERE email = $1',
-      [userEmail]
-    )
-    if (userResult.rows.length === 0) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
-    }
-    const userId = userResult.rows[0].id
+    const userId = sessionUser.id
 
     const existing = await query<{ user_id: number }>(
       'SELECT user_id FROM user_post_bookmarks WHERE user_id = $1 AND post_id = $2',

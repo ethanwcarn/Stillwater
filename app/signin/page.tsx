@@ -15,7 +15,7 @@ export default function SignInPage() {
 }
 
 function SignInPageContent() {
-  const { signIn, userEmail } = useAuth()
+  const { signIn, userEmail, authReady } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   const passwordResetSuccess = searchParams.get('passwordReset') === 'success'
@@ -28,11 +28,12 @@ function SignInPageContent() {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    if (userEmail) {
+    if (authReady && userEmail) {
       router.replace('/')
     }
-  }, [router, userEmail])
+  }, [authReady, router, userEmail])
 
+  if (!authReady) return <SignInPageSkeleton />
   if (userEmail) return null
 
   const validate = () => {

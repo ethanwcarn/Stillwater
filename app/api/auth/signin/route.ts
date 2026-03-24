@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { query } from '@/lib/db'
+import { createSession, setSessionCookie } from '@/lib/session'
 
 export async function POST(req: NextRequest) {
   const { email, password } = await req.json()
@@ -34,5 +35,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 })
   }
 
-  return NextResponse.json({ id: user.id, email: user.email, displayName: user.display_name })
+  const sessionToken = await createSession(user.id)
+  const response = NextResponse.json({ id: user.id, email: user.email, displayName: user.display_name })
+  setSessionCookie(response, sessionToken)
+  return response
 }

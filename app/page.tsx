@@ -5,7 +5,7 @@ import { Search, CalendarPlus, Users } from 'lucide-react'
 import { useAuth } from './providers'
 
 export default function HomePage() {
-  const { userEmail } = useAuth()
+  const { userEmail, authReady } = useAuth()
 
   return (
     <div className="min-h-screen">
@@ -24,7 +24,7 @@ export default function HomePage() {
             A safe space where your mental health and spiritual life work together.
             Connect with faith-informed therapists and a caring community.
           </p>
-          {!userEmail && (
+          {authReady && !userEmail && (
             <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
                 href="/signup"
@@ -136,7 +136,7 @@ export default function HomePage() {
           <p className="mx-auto mt-4 max-w-md text-muted-foreground">
             Join a growing community of people who believe mental health and faith belong together.
           </p>
-          {!userEmail && (
+          {authReady && !userEmail && (
             <Link
               href="/signup"
               className="mt-8 inline-block rounded-full bg-primary px-10 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"

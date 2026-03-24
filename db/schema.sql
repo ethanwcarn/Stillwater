@@ -14,10 +14,12 @@ WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'stillwaters')\gexec
 
 -- Drop existing tables (order matters for foreign keys)
 DROP TABLE IF EXISTS password_reset_tokens;
+DROP TABLE IF EXISTS user_sessions;
 DROP TABLE IF EXISTS user_post_bookmarks;
 DROP TABLE IF EXISTS post_comments;
 DROP TABLE IF EXISTS community_posts;
 DROP TABLE IF EXISTS therapist_specialties;
+DROP TABLE IF EXISTS requested_sessions;
 DROP TABLE IF EXISTS therapists;
 DROP TABLE IF EXISTS users;
 
@@ -41,7 +43,16 @@ CREATE TABLE password_reset_tokens (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 3. Therapists
+-- 3. User Sessions
+CREATE TABLE user_sessions (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token_hash VARCHAR(64) NOT NULL UNIQUE,
+  expires_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 4. Therapists
 CREATE TABLE therapists (
   id SERIAL PRIMARY KEY,
   user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
@@ -52,7 +63,7 @@ CREATE TABLE therapists (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 4. Therapist Specialties (many-to-many: therapist <-> specialty)
+-- 5. Therapist Specialties (many-to-many: therapist <-> specialty)
 CREATE TABLE therapist_specialties (
   id SERIAL PRIMARY KEY,
   therapist_id INTEGER NOT NULL REFERENCES therapists(id) ON DELETE CASCADE,
@@ -60,7 +71,18 @@ CREATE TABLE therapist_specialties (
   UNIQUE(therapist_id, specialty)
 );
 
--- 5. Community Posts
+-- 6. Requested Sessions
+CREATE TABLE requested_sessions (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  therapist_id INTEGER NOT NULL REFERENCES therapists(id) ON DELETE CASCADE,
+  session_date DATE NOT NULL,
+  session_time TIME NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(therapist_id, session_date, session_time)
+);
+
+-- 7. Community Posts
 CREATE TABLE community_posts (
   id SERIAL PRIMARY KEY,
   author_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
@@ -69,7 +91,7 @@ CREATE TABLE community_posts (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 6. Post Comments
+-- 8. Post Comments
 CREATE TABLE post_comments (
   id SERIAL PRIMARY KEY,
   post_id INTEGER NOT NULL REFERENCES community_posts(id) ON DELETE CASCADE,
@@ -78,7 +100,7 @@ CREATE TABLE post_comments (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 7. User Post Bookmarks (junction table)
+-- 9. User Post Bookmarks (junction table)
 CREATE TABLE user_post_bookmarks (
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   post_id INTEGER NOT NULL REFERENCES community_posts(id) ON DELETE CASCADE,
@@ -89,6 +111,10 @@ CREATE TABLE user_post_bookmarks (
 -- Indexes for common queries
 CREATE INDEX idx_password_reset_tokens_user ON password_reset_tokens(user_id);
 CREATE INDEX idx_password_reset_tokens_expires_at ON password_reset_tokens(expires_at);
+CREATE INDEX idx_user_sessions_user ON user_sessions(user_id);
+CREATE INDEX idx_user_sessions_expires ON user_sessions(expires_at);
+CREATE INDEX idx_requested_sessions_user ON requested_sessions(user_id);
+CREATE INDEX idx_requested_sessions_therapist ON requested_sessions(therapist_id);
 CREATE INDEX idx_community_posts_created ON community_posts(created_at DESC);
 CREATE INDEX idx_post_comments_post_id ON post_comments(post_id);
 CREATE INDEX idx_user_post_bookmarks_user ON user_post_bookmarks(user_id);

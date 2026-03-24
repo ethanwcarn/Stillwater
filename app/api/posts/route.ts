@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { query } from '@/lib/db'
+import { getSessionUserFromRequest } from '@/lib/session'
 
 export interface PostWithBookmark {
   id: number
@@ -13,18 +14,8 @@ export interface PostWithBookmark {
 
 export async function GET(request: NextRequest) {
   try {
-    const userEmail = request.nextUrl.searchParams.get('userEmail')
-    let userId: number | null = null
-
-    if (userEmail) {
-      const userResult = await query<{ id: number }>(
-        'SELECT id FROM users WHERE email = $1',
-        [userEmail]
-      )
-      if (userResult.rows.length > 0) {
-        userId = userResult.rows[0].id
-      }
-    }
+    const sessionUser = await getSessionUserFromRequest(request)
+    const userId = sessionUser?.id ?? null
 
     const postsResult = await query<{
       id: number

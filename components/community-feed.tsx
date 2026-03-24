@@ -16,7 +16,7 @@ interface Post {
 }
 
 export function CommunityFeed() {
-  const { userEmail } = useAuth()
+  const { userEmail, authReady } = useAuth()
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -25,10 +25,7 @@ export function CommunityFeed() {
     setLoading(true)
     setError(null)
     try {
-      const url = userEmail
-        ? `/api/posts?userEmail=${encodeURIComponent(userEmail)}`
-        : '/api/posts'
-      const res = await fetch(url)
+      const res = await fetch('/api/posts')
       if (!res.ok) throw new Error('Failed to fetch posts')
       const data = await res.json()
       setPosts(data)
@@ -46,6 +43,8 @@ export function CommunityFeed() {
   }, [userEmail])
 
   const handleBookmark = async (postId: number, currentBookmarked: boolean) => {
+    if (!authReady) return
+
     if (!userEmail) {
       alert('Please sign in to bookmark posts.')
       return
@@ -61,8 +60,6 @@ export function CommunityFeed() {
     try {
       const res = await fetch(`/api/posts/${postId}/bookmark`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userEmail }),
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
@@ -127,7 +124,7 @@ export function CommunityFeed() {
 
   return (
     <div className="space-y-4">
-      {!userEmail && (
+      {authReady && !userEmail && (
         <p className="rounded-2xl border border-secondary/30 bg-secondary/10 p-3 text-sm text-accent">
           Sign in to bookmark posts and save your favorites.
         </p>

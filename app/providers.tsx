@@ -1,9 +1,10 @@
 'use client'
 
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react'
 
 type AuthContextType = {
   userEmail: string | null
+  authReady: boolean
   signIn: (email: string, password: string) => Promise<string | null>
   signUp: (email: string, password: string, displayName?: string) => Promise<string | null>
   signOut: () => void
@@ -11,37 +12,30 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
-function getInitialUserEmail(): string | null {
-  if (typeof window === 'undefined') return null
-
-  // Prefer cookie so it survives full reloads and multiple tabs
-  const cookieMatch = document.cookie.match(/(?:^|;\s*)userEmail=([^;]+)/)
-  if (cookieMatch?.[1]) {
-    try {
-      return decodeURIComponent(cookieMatch[1])
-    } catch {
-      return cookieMatch[1]
-    }
-  }
-
-  return null
-}
-
-function setUserEmailCookie(email: string | null) {
-  if (typeof window === 'undefined') return
-
-  if (email) {
-    // Persist for 7 days
-    const maxAgeSeconds = 60 * 60 * 24 * 7
-    document.cookie = `userEmail=${encodeURIComponent(email)}; path=/; max-age=${maxAgeSeconds}`
-  } else {
-    // Clear cookie
-    document.cookie = 'userEmail=; path=/; max-age=0'
-  }
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [userEmail, setUserEmail] = useState<string | null>(() => getInitialUserEmail())
+  const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [authReady, setAuthReady] = useState(false)
+
+  const loadSessionUser = useCallback(async () => {
+    try {
+      const res = await fetch('/api/auth/me', { cache: 'no-store' })
+      if (!res.ok) {
+        setUserEmail(null)
+        return
+      }
+
+      const data = await res.json()
+      setUserEmail(typeof data?.email === 'string' ? data.email : null)
+    } catch {
+      setUserEmail(null)
+    } finally {
+      setAuthReady(true)
+    }
+  }, [])
+
+  useEffect(() => {
+    void loadSessionUser()
+  }, [loadSessionUser])
 
   const signIn = useCallback(async (email: string, password: string): Promise<string | null> => {
     const res = await fetch('/api/auth/signin', {
@@ -55,8 +49,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return data.error ?? 'Sign in failed'
     }
 
-    setUserEmail(email)
-    setUserEmailCookie(email)
+    const data = await res.json()
+    setUserEmail(typeof data?.email === 'string' ? data.email : email)
+    setAuthReady(true)
     return null
   }, [])
 
@@ -76,18 +71,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return data.error ?? 'Sign up failed'
     }
 
-    setUserEmail(email)
-    setUserEmailCookie(email)
+    const data = await res.json()
+    setUserEmail(typeof data?.email === 'string' ? data.email : email)
+    setAuthReady(true)
     return null
   }, [])
 
   const signOut = useCallback(() => {
     setUserEmail(null)
-    setUserEmailCookie(null)
+    setAuthReady(true)
+    void fetch('/api/auth/signout', { method: 'POST' })
   }, [])
 
   return (
-    <AuthContext.Provider value={{ userEmail, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ userEmail, authReady, signIn, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   )

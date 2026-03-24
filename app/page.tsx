@@ -1,7 +1,12 @@
+'use client'
+
 import Link from 'next/link'
-import { Search, CalendarPlus, Users, MessageCircle, Heart } from 'lucide-react'
+import { Search, CalendarPlus, Users } from 'lucide-react'
+import { useAuth } from './providers'
 
 export default function HomePage() {
+  const { userEmail, authReady } = useAuth()
+
   return (
     <div className="min-h-screen">
 
@@ -19,20 +24,22 @@ export default function HomePage() {
             A safe space where your mental health and spiritual life work together.
             Connect with faith-informed therapists and a caring community.
           </p>
-          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link
-              href="/signup"
-              className="w-full rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 sm:w-auto"
-            >
-              Create an Account
-            </Link>
-            <Link
-              href="/signin"
-              className="w-full rounded-full bg-white/80 border border-primary/30 px-8 py-3 text-sm font-medium text-foreground transition-colors hover:bg-white sm:w-auto"
-            >
-              Log In
-            </Link>
-          </div>
+          {authReady && !userEmail && (
+            <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Link
+                href="/signup"
+                className="w-full rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 sm:w-auto"
+              >
+                Create an Account
+              </Link>
+              <Link
+                href="/signin"
+                className="w-full rounded-full border border-primary/30 bg-white/80 px-8 py-3 text-sm font-medium text-foreground transition-colors hover:bg-white sm:w-auto"
+              >
+                Log In
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 
@@ -129,12 +136,14 @@ export default function HomePage() {
           <p className="mx-auto mt-4 max-w-md text-muted-foreground">
             Join a growing community of people who believe mental health and faith belong together.
           </p>
-          <Link
-            href="/signup"
-            className="mt-8 inline-block rounded-full bg-primary px-10 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
-          >
-            Create an Account
-          </Link>
+          {authReady && !userEmail && (
+            <Link
+              href="/signup"
+              className="mt-8 inline-block rounded-full bg-primary px-10 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+            >
+              Create an Account
+            </Link>
+          )}
         </div>
       </section>
 

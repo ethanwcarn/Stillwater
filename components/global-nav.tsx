@@ -5,7 +5,7 @@ import { Droplets, Home, MessageCircle, Heart, LogOut } from 'lucide-react'
 import { useAuth } from '@/app/providers'
 
 export function GlobalNav() {
-  const { userEmail, signOut } = useAuth()
+  const { userEmail, signOut, authReady } = useAuth()
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-card/90 backdrop-blur-md">
@@ -34,7 +34,9 @@ export function GlobalNav() {
             Therapists
           </Link>
 
-          {userEmail ? (
+          {!authReady ? (
+            <div className="h-8 w-24" />
+          ) : userEmail ? (
             <div className="flex items-center gap-3 border-l border-border pl-5">
               <span className="hidden text-xs text-muted-foreground md:inline">{userEmail}</span>
               <button

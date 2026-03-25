@@ -151,32 +151,35 @@ export default async function TherapistsPage({ searchParams }: TherapistsPagePro
             className="grid grid-cols-1 gap-4 md:grid-cols-2"
           >
             {therapists.map((therapist) => (
-              <article
+              <Link
                 key={therapist.id}
-                className="rounded-2xl border bg-card p-6 shadow-sm transition hover:shadow-md"
+                href={`/therapists/${therapist.id}`}
+                className="group rounded-2xl border bg-card p-6 shadow-sm transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                <h2 className="font-serif text-xl font-semibold text-foreground">
-                  {therapist.name}
-                </h2>
+                <article>
+                  <h2 className="font-serif text-xl font-semibold text-foreground group-hover:text-primary">
+                    {therapist.name}
+                  </h2>
 
-                {therapist.credentials && (
-                  <p className="mt-1 text-sm font-medium text-primary">
-                    {therapist.credentials}
-                  </p>
-                )}
+                  {therapist.credentials && (
+                    <p className="mt-1 text-sm font-medium text-primary">
+                      {therapist.credentials}
+                    </p>
+                  )}
 
-                {therapist.faith_tradition && (
-                  <span className="mt-3 inline-block rounded-full bg-secondary/15 px-3 py-1 text-xs font-medium text-secondary">
-                    {therapist.faith_tradition}
-                  </span>
-                )}
+                  {therapist.faith_tradition && (
+                    <span className="mt-3 inline-block rounded-full bg-secondary/15 px-3 py-1 text-xs font-medium text-secondary">
+                      {therapist.faith_tradition}
+                    </span>
+                  )}
 
-                {therapist.bio && (
-                  <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                    {therapist.bio}
-                  </p>
-                )}
-              </article>
+                  {therapist.bio && (
+                    <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                      {therapist.bio}
+                    </p>
+                  )}
+                </article>
+              </Link>
             ))}
           </section>
         )}

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Search, CalendarPlus, Users, MessageCircle, Heart } from 'lucide-react'
+import { TherapistCarousel } from '@/components/therapist-carousel'
 
 export default function HomePage() {
   return (
@@ -78,6 +79,33 @@ export default function HomePage() {
                 <p className="mt-2 leading-relaxed text-muted-foreground">{step.desc}</p>
               </Link>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Therapists */}
+      <section className="bg-muted/30 px-4 py-16 md:py-20">
+        <div className="mx-auto max-w-5xl">
+          <div className="flex items-end justify-between">
+            <div>
+              <h2 className="font-serif text-2xl font-semibold text-foreground md:text-3xl">
+                Featured Therapists
+              </h2>
+              <p className="mt-2 text-muted-foreground">
+                Faith-informed professionals ready to walk with you
+              </p>
+            </div>
+            <Link href="/therapists" className="hidden text-sm font-medium text-accent hover:underline md:block">
+              View all
+            </Link>
+          </div>
+          <div className="mt-8">
+            <TherapistCarousel />
+          </div>
+          <div className="mt-4 text-center md:hidden">
+            <Link href="/therapists" className="text-sm font-medium text-accent hover:underline">
+              View all therapists
+            </Link>
           </div>
         </div>
       </section>

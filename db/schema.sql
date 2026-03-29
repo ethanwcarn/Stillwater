@@ -49,6 +49,7 @@ CREATE TABLE therapists (
   credentials VARCHAR(255),
   bio TEXT,
   faith_tradition VARCHAR(100),
+  photo_url VARCHAR(500),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

@@ -1,4 +1,6 @@
+import Image from 'next/image'
 import { query } from '@/lib/db'
+import { featuredTherapists } from '@/lib/therapists'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,6 +11,10 @@ type Therapist = {
   bio: string | null
   faith_tradition: string | null
 }
+
+const photoMap = Object.fromEntries(
+  featuredTherapists.map((t) => [t.id, t.photo_url])
+)
 
 async function getTherapists(): Promise<Therapist[]> {
   try {
@@ -50,11 +56,23 @@ export default async function TherapistsPage() {
           {therapists.map((therapist) => (
             <article
               key={therapist.id}
-              className="rounded-2xl border bg-card p-6 shadow-sm transition hover:shadow-md"
+              className="relative rounded-2xl border bg-card p-6 shadow-sm transition hover:shadow-md"
             >
-              <h2 className="font-serif text-xl font-semibold text-foreground">
-                {therapist.name}
-              </h2>
+              {photoMap[therapist.id] && (
+                <div className="absolute right-[58px] top-8 h-[72px] w-[72px] overflow-hidden rounded-full border border-border">
+                  <Image
+                    src={photoMap[therapist.id]}
+                    alt={therapist.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              )}
+              <div className="pr-24">
+                <h2 className="font-serif text-xl font-semibold text-foreground">
+                  {therapist.name}
+                </h2>
+              </div>
 
               {therapist.credentials && (
                 <p className="mt-1 text-sm font-medium text-primary">

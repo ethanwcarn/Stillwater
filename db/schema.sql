@@ -108,6 +108,15 @@ CREATE TABLE user_post_bookmarks (
   PRIMARY KEY (user_id, post_id)
 );
 
+-- 10. User sessions table
+CREATE TABLE user_sessions (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token_hash VARCHAR(64) NOT NULL UNIQUE,
+  expires_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Indexes for common queries
 CREATE INDEX idx_password_reset_tokens_user ON password_reset_tokens(user_id);
 CREATE INDEX idx_password_reset_tokens_expires_at ON password_reset_tokens(expires_at);

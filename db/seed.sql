@@ -126,3 +126,8 @@ INSERT INTO user_post_bookmarks (user_id, post_id) VALUES
 (5, 6),
 (6, 5),
 (7, 7);
+
+-- Reset sequences after inserting explicit IDs
+SELECT setval('users_id_seq', (SELECT MAX(id) FROM users), true);
+SELECT setval('therapists_id_seq', (SELECT MAX(id) FROM therapists), true);
+SELECT setval('community_posts_id_seq', (SELECT MAX(id) FROM community_posts), true);

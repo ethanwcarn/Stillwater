@@ -1,25 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, ChevronDown, Check } from 'lucide-react'
 import { useAuth } from '@/app/providers'
-
-const faithTraditions = [
-  'Christianity',
-  'Islam',
-  'Judaism',
-  'Buddhism',
-  'Hinduism',
-  'Sikhism',
-  'Interfaith',
-  'Secular / No preference',
-  'Other',
-]
+import { faithTraditions } from '@/lib/faith-traditions'
 
 export default function SignUpPage() {
-  const { signUp, userEmail } = useAuth()
+  const { signUp, userEmail, authReady } = useAuth()
   const router = useRouter()
 
   const [form, setForm] = useState({
@@ -36,8 +25,15 @@ export default function SignUpPage() {
   const [success, setSuccess] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
+  useEffect(() => {
+    if (authReady && userEmail) {
+      router.replace('/')
+    }
+  }, [authReady, router, userEmail])
+
+  if (!authReady) return null
+
   if (userEmail) {
-    router.replace('/')
     return null
   }
 

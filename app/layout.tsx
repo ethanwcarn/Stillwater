@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 import { Inter, Playfair_Display } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from './providers'
-import { GlobalNav } from '@/components/global-nav'
+import { GlobalNav } from '@/components/global-nav' // Import the new nav
+import { BottomNav } from "@/components/bottom-nav";
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair' })
@@ -21,8 +22,17 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} ${playfair.variable} font-sans min-h-screen antialiased`}>
         <AuthProvider>
-          <GlobalNav />
-          {children}
+          <div className="hidden md:block">
+            <GlobalNav />
+          </div>
+
+          <main className="pb-20">
+            {children}
+          </main>
+
+          <div className="md:hidden">
+            <BottomNav />
+          </div>
         </AuthProvider>
       </body>
     </html>

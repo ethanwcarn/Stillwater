@@ -1,14 +1,24 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '@/app/providers'
 
 export default function SignInPage() {
-  const { signIn, userEmail } = useAuth()
+  return (
+    <Suspense fallback={<SignInPageSkeleton />}>
+      <SignInPageContent />
+    </Suspense>
+  )
+}
+
+function SignInPageContent() {
+  const { signIn, userEmail, authReady } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const passwordResetSuccess = searchParams.get('passwordReset') === 'success'
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -17,10 +27,14 @@ export default function SignInPage() {
   const [serverError, setServerError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-  if (userEmail) {
-    router.replace('/')
-    return null
-  }
+  useEffect(() => {
+    if (authReady && userEmail) {
+      router.replace('/')
+    }
+  }, [authReady, router, userEmail])
+
+  if (!authReady) return <SignInPageSkeleton />
+  if (userEmail) return null
 
   const validate = () => {
     const newErrors: Record<string, string> = {}
@@ -46,16 +60,26 @@ export default function SignInPage() {
     }
   }
 
+  const forgotPasswordHref = email.trim()
+    ? `/reset-password?email=${encodeURIComponent(email.trim())}`
+    : '/reset-password'
+
   return (
     <div className="animate-fade-in min-h-screen bg-gradient-to-br from-secondary/5 via-primary/5 to-background">
       <div className="flex items-center justify-center px-4 pb-12 pt-12 md:pt-20">
-        <div className="w-full max-w-md rounded-2xl border border-border/50 bg-card p-6 shadow-lg md:p-8">
+        <div className="w-full max-w-md rounded-2xl border border-border/50 bg-card/95 p-6 shadow-lg backdrop-blur md:p-8">
           <div className="text-center">
             <h1 className="font-serif text-2xl font-semibold text-foreground">Welcome Back</h1>
             <p className="mt-2 text-sm text-muted-foreground">Sign in to continue your journey</p>
           </div>
 
           <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-5">
+            {passwordResetSuccess && (
+              <p className="rounded-xl border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-foreground">
+                Your password has been updated. Sign in with your new password.
+              </p>
+            )}
+
             <div className="flex flex-col gap-1.5">
               <label htmlFor="email" className="text-sm font-medium text-foreground">Email</label>
               <input
@@ -70,7 +94,12 @@ export default function SignInPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="password" className="text-sm font-medium text-foreground">Password</label>
+              <div className="flex items-center justify-between gap-3">
+                <label htmlFor="password" className="text-sm font-medium text-foreground">Password</label>
+                <Link href={forgotPasswordHref} className="text-xs font-medium text-accent hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
               <div className="relative">
                 <input
                   id="password"
@@ -112,6 +141,16 @@ export default function SignInPage() {
             </Link>
           </p>
         </div>
+      </div>
+    </div>
+  )
+}
+
+function SignInPageSkeleton() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-secondary/5 via-primary/5 to-background">
+      <div className="flex items-center justify-center px-4 pb-12 pt-12 md:pt-20">
+        <div className="h-[34rem] w-full max-w-md rounded-2xl border border-border/50 bg-card/95 shadow-lg backdrop-blur" />
       </div>
     </div>
   )

@@ -56,7 +56,23 @@ INSERT INTO therapists (id, name, credentials, bio, faith_tradition, photo_url) 
 (17, 'Hannah Brooks',     'LCSW',        'Specializes in grief counseling and emotional healing.',                                                'Christianity',   NULL),
 (18, 'Yusuf Ali',         'LMHC',        'Helps clients manage anxiety and emotional resilience.',                                                'Islam',          NULL),
 (19, 'Rebecca Stein',     'LMFT',        'Supports families through conflict and life transitions.',                                              'Judaism',        NULL),
-(20, 'Daniel Park',       'LPC',         'Works with young adults navigating stress and burnout.',                                                'Christianity',   NULL)
+(20, 'Daniel Park',       'LPC',         'Works with young adults navigating stress and burnout.',                                                'Christianity',   NULL),
+
+-- Sikhism (2)
+(21, 'Gurpreet Kaur',     'LCSW',        'Integrates Sikh values of seva and simran into compassionate, community-focused therapy.',                 'Sikhism',        NULL),
+(22, 'Harjinder Singh',   'PhD, LPC',    'Draws on Gurbani teachings to support clients through grief, identity, and life transitions.',             'Sikhism',        NULL),
+
+-- Interfaith (2)
+(23, 'Dr. Anika Patel',   'PhD, LMFT',   'Works across faith traditions to help clients find meaning and healing through shared spiritual values.',  'Interfaith',     NULL),
+(24, 'Omar Khalil',       'LCSW',        'Bridges diverse spiritual backgrounds to offer inclusive, faith-sensitive mental health support.',          'Interfaith',     NULL),
+
+-- Secular / No preference (2)
+(25, 'Dr. Claire Hughes', 'PhD, LPC',    'Evidence-based therapist offering a non-religious, judgment-free space for growth and healing.',           'Secular / No preference', NULL),
+(26, 'Marcus Webb',       'LMHC',        'Specializes in CBT and mindfulness for clients who prefer a secular therapeutic approach.',                'Secular / No preference', NULL),
+
+-- Other (2)
+(27, 'Leila Nasser',      'LCSW',        'Supports clients whose spiritual lives fall outside mainstream traditions with warmth and openness.',      'Other',          NULL),
+(28, 'Dr. Sam Flores',    'PhD',         'Works with clients from emerging and indigenous spiritual traditions to promote holistic well-being.',      'Other',          NULL)
 ON CONFLICT (id) DO UPDATE SET
   photo_url       = EXCLUDED.photo_url,
   name            = EXCLUDED.name,
@@ -87,7 +103,15 @@ INSERT INTO therapist_specialties (therapist_id, specialty) VALUES
 (17, 'Grief'), (17, 'Depression'),
 (18, 'Anxiety'), (18, 'Burnout'),
 (19, 'Family Therapy'), (19, 'Relationships'),
-(20, 'Stress Management'), (20, 'Young Adult Support')
+(20, 'Stress Management'), (20, 'Young Adult Support'),
+(21, 'Grief'), (21, 'Identity'), (21, 'Cultural Adjustment'),
+(22, 'Grief'), (22, 'Life Transitions'), (22, 'Spiritual Growth'),
+(23, 'Interfaith Counseling'), (23, 'Anxiety'), (23, 'Life Transitions'),
+(24, 'Interfaith Counseling'), (24, 'Trauma'), (24, 'Depression'),
+(25, 'Anxiety'), (25, 'CBT'), (25, 'Depression'),
+(26, 'Mindfulness'), (26, 'Stress Management'), (26, 'Burnout'),
+(27, 'Identity'), (27, 'Anxiety'), (27, 'Spiritual Growth'),
+(28, 'Cultural Identity'), (28, 'Grief'), (28, 'Self-Discovery')
 ON CONFLICT (therapist_id, specialty) DO NOTHING;
 
 --------------------------------------------------
@@ -132,3 +156,8 @@ INSERT INTO user_post_bookmarks (user_id, post_id) VALUES
 (5, 6),
 (6, 5),
 (7, 7);
+
+-- Reset sequences after inserting explicit IDs
+SELECT setval('users_id_seq', (SELECT MAX(id) FROM users), true);
+SELECT setval('therapists_id_seq', (SELECT MAX(id) FROM therapists), true);
+SELECT setval('community_posts_id_seq', (SELECT MAX(id) FROM community_posts), true);

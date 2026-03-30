@@ -11,10 +11,12 @@ type TherapistOption = {
   id: number
   name: string
   credentials: string | null
+  photo_url: string | null
 }
 
 type SessionRequestFormProps = {
   therapists: TherapistOption[]
+  defaultTherapistId?: number
 }
 
 type TimeOption = {
@@ -48,9 +50,9 @@ function getTodayDate(): Date {
   return today
 }
 
-export function SessionRequestForm({ therapists }: SessionRequestFormProps) {
+export function SessionRequestForm({ therapists, defaultTherapistId }: SessionRequestFormProps) {
   const { userEmail, authReady } = useAuth()
-  const [providerId, setProviderId] = useState<string>('')
+  const [providerId, setProviderId] = useState<string>(defaultTherapistId ? String(defaultTherapistId) : '')
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   const [selectedTime, setSelectedTime] = useState<string>('')
   const [submitting, setSubmitting] = useState(false)
@@ -142,6 +144,16 @@ export function SessionRequestForm({ therapists }: SessionRequestFormProps) {
             </option>
           ))}
         </select>
+        {selectedProvider?.photo_url && (
+          <div className="mt-4 flex items-center gap-3">
+            <img
+              src={selectedProvider.photo_url}
+              alt={selectedProvider.name}
+              className="h-14 w-14 rounded-full object-cover object-top shadow-sm"
+            />
+            <p className="text-sm font-medium text-foreground">{selectedProvider.name}</p>
+          </div>
+        )}
       </div>
 
       <div className="rounded-2xl border bg-card p-5 shadow-sm">

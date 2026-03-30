@@ -17,11 +17,11 @@ export function TherapistCarousel() {
 
   return (
     <div className="relative">
-      {/* Left button */}
+      {/* Left button — desktop only */}
       <button
         onClick={() => scroll('left')}
         aria-label="Scroll left"
-        className="absolute -left-12 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-border/50 bg-card shadow-md transition-colors hover:bg-muted"
+        className="absolute -left-16 top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-border/50 bg-card shadow-md transition-colors hover:bg-muted md:flex"
       >
         <ChevronLeft className="h-6 w-6 text-foreground" />
       </button>
@@ -29,20 +29,20 @@ export function TherapistCarousel() {
       {/* Scroll container */}
       <div
         ref={scrollRef}
-        className="flex gap-5 overflow-x-auto pb-2 pt-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-6 pt-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {featuredTherapists.map((therapist) => (
           <Link
             key={therapist.id}
-            href="/therapists"
-            className="group w-[calc((100%-2.5rem)/3)] flex-none overflow-hidden rounded-2xl border border-border/50 bg-card transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+            href={`/therapists/${therapist.id}`}
+            className="group w-[85%] flex-none snap-start overflow-hidden rounded-2xl border border-border/50 bg-card transition-all duration-300 hover:-translate-y-1 hover:shadow-lg md:w-[calc((100%-2.5rem)/3)]"
           >
             {/* Image */}
             <div className="relative h-64 w-full overflow-hidden bg-muted md:h-72">
               <img
                 src={therapist.photo_url}
                 alt={therapist.name}
-                className="h-full w-full object-cover object-center"
+                className="h-full w-full object-cover object-top"
               />
               <span className="absolute right-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-foreground shadow-sm">
                 {therapist.faith_tradition}
@@ -71,11 +71,11 @@ export function TherapistCarousel() {
         ))}
       </div>
 
-      {/* Right button */}
+      {/* Right button — desktop only */}
       <button
         onClick={() => scroll('right')}
         aria-label="Scroll right"
-        className="absolute -right-12 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-border/50 bg-card shadow-md transition-colors hover:bg-muted"
+        className="absolute -right-16 top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-border/50 bg-card shadow-md transition-colors hover:bg-muted md:flex"
       >
         <ChevronRight className="h-6 w-6 text-foreground" />
       </button>

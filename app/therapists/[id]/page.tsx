@@ -10,6 +10,7 @@ type Therapist = {
   credentials: string | null
   bio: string | null
   faith_tradition: string | null
+  photo_url: string | null
 }
 
 type TherapistSpecialty = {
@@ -19,7 +20,7 @@ type TherapistSpecialty = {
 async function getTherapist(id: number): Promise<Therapist | null> {
   const result = await query<Therapist>(
     `
-    SELECT id, name, credentials, bio, faith_tradition
+    SELECT id, name, credentials, bio, faith_tradition, photo_url
     FROM therapists
     WHERE id = $1
     `,
@@ -67,15 +68,26 @@ export default async function TherapistDetailPage({ params }: TherapistDetailPag
           <Link href="/therapists" className="text-sm font-medium text-primary hover:underline">
             Back to therapists
           </Link>
-          <h1 className="mt-3 font-serif text-3xl font-semibold text-foreground">{therapist.name}</h1>
-          {therapist.credentials && (
-            <p className="mt-1 text-base font-medium text-primary">{therapist.credentials}</p>
-          )}
-          {therapist.faith_tradition && (
-            <span className="mt-3 inline-block rounded-full bg-secondary/15 px-3 py-1 text-xs font-medium text-secondary">
-              {therapist.faith_tradition}
-            </span>
-          )}
+          <div className="mt-3 flex items-center gap-4">
+            {therapist.photo_url && (
+              <img
+                src={therapist.photo_url}
+                alt={therapist.name}
+                className="h-20 w-20 flex-none rounded-full object-cover object-top shadow-md md:h-24 md:w-24"
+              />
+            )}
+            <div>
+              <h1 className="font-serif text-2xl font-semibold text-foreground md:text-3xl">{therapist.name}</h1>
+              {therapist.credentials && (
+                <p className="mt-1 text-base font-medium text-primary">{therapist.credentials}</p>
+              )}
+              {therapist.faith_tradition && (
+                <span className="mt-3 inline-block rounded-full bg-secondary/15 px-3 py-1 text-xs font-medium text-secondary">
+                  {therapist.faith_tradition}
+                </span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 

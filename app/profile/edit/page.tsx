@@ -35,7 +35,7 @@ export default function EditProfilePage() {
       try {
         const [userRes, appointmentsRes] = await Promise.all([
           fetch('/api/profile'),
-          fetch('/api/appointments/future')
+          fetch('/api/session-requests')
         ])
 
         if (userRes.ok) {

@@ -8,6 +8,9 @@ TRUNCATE TABLE
   user_post_bookmarks,
   post_comments,
   community_posts,
+  requested_sessions,
+  therapist_specialties, 
+  therapists,
   users
 RESTART IDENTITY CASCADE;
 
@@ -163,3 +166,16 @@ INSERT INTO user_post_bookmarks (user_id, post_id) VALUES
 SELECT setval('users_id_seq', (SELECT MAX(id) FROM users), true);
 SELECT setval('therapists_id_seq', (SELECT MAX(id) FROM therapists), true);
 SELECT setval('community_posts_id_seq', (SELECT MAX(id) FROM community_posts), true);
+
+
+--------------------------------------------------
+-- REQUESTED SESSIONS 
+--------------------------------------------------
+INSERT INTO requested_sessions (user_id, therapist_id, session_date, session_time, description) VALUES
+(1, 1, '2026-04-10', '10:00', 'Initial consultation to discuss faith-integrated anxiety support.'),
+(1, 2, '2026-04-15', '14:30', 'Follow-up on mindfulness techniques within a religious context.'),
+(1, 3, '2026-05-01', '09:00', 'Exploring grief and life transitions.'),
+(2, 2, '2026-04-12', '11:00', 'Discussion on community and faith-based wellness.');
+
+-- Reset sequence for this table
+SELECT setval('requested_sessions_id_seq', (SELECT MAX(id) FROM requested_sessions), true);

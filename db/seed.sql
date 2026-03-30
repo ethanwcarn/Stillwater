@@ -2,8 +2,8 @@
 -- Run after schema.sql: psql -d stillwaters -f db/seed.sql
 
 -- Make seed re-runnable without duplicate key errors
--- Note: therapists and therapist_specialties are intentionally excluded from
--- the truncate so that therapists added by teammates are never wiped.
+-- Truncating users with CASCADE also clears dependent auth/session,
+-- therapist, and requested-session tables before reseeding demo data.
 TRUNCATE TABLE
   user_post_bookmarks,
   post_comments,
@@ -13,27 +13,29 @@ RESTART IDENTITY CASCADE;
 
 --------------------------------------------------
 -- USERS
+-- All seeded users share the demo password: Password123!
 --------------------------------------------------
 INSERT INTO users (id, email, password_hash, display_name, faith_tradition) VALUES
-(1, 'sarah@example.com', NULL, 'Sarah', 'Christianity'),
-(2, 'mike@example.com', NULL, 'Mike', 'Islam'),
-(3, 'jordan@example.com', NULL, 'Jordan', NULL),
-(4, 'ana@example.com', NULL, 'Ana', 'Judaism'),
-(5, 'priya@example.com', NULL, 'Priya', 'Hinduism'),
-(6, 'tenzin@example.com', NULL, 'Tenzin', 'Buddhism'),
-(7, 'maria@example.com', NULL, 'Maria', 'Catholicism'),
-(8, 'david@example.com', NULL, 'David', 'Latter-day Saint'),
-(9, 'amina@example.com', NULL, 'Amina', 'Islam'),
-(10, 'rachel@example.com', NULL, 'Rachel', 'Judaism'),
-(11, 'noah@example.com', NULL, 'Noah', 'Christianity'),
-(12, 'layla@example.com', NULL, 'Layla', 'Islam'),
-(13, 'aaron@example.com', NULL, 'Aaron', 'Judaism'),
-(14, 'isha@example.com', NULL, 'Isha', 'Hinduism'),
-(15, 'ming@example.com', NULL, 'Ming', 'Buddhism');
+(1, 'sarah@example.com', '$2b$12$F6dLq31meG51ts8TNKTT9.PODOpvyOhw344FXg0dop3P1Nwt4p.Ve', 'Sarah', 'Christianity'),
+(2, 'mike@example.com', '$2b$12$F6dLq31meG51ts8TNKTT9.PODOpvyOhw344FXg0dop3P1Nwt4p.Ve', 'Mike', 'Islam'),
+(3, 'jordan@example.com', '$2b$12$F6dLq31meG51ts8TNKTT9.PODOpvyOhw344FXg0dop3P1Nwt4p.Ve', 'Jordan', NULL),
+(4, 'ana@example.com', '$2b$12$F6dLq31meG51ts8TNKTT9.PODOpvyOhw344FXg0dop3P1Nwt4p.Ve', 'Ana', 'Judaism'),
+(5, 'priya@example.com', '$2b$12$F6dLq31meG51ts8TNKTT9.PODOpvyOhw344FXg0dop3P1Nwt4p.Ve', 'Priya', 'Hinduism'),
+(6, 'tenzin@example.com', '$2b$12$F6dLq31meG51ts8TNKTT9.PODOpvyOhw344FXg0dop3P1Nwt4p.Ve', 'Tenzin', 'Buddhism'),
+(7, 'maria@example.com', '$2b$12$F6dLq31meG51ts8TNKTT9.PODOpvyOhw344FXg0dop3P1Nwt4p.Ve', 'Maria', 'Catholicism'),
+(8, 'david@example.com', '$2b$12$F6dLq31meG51ts8TNKTT9.PODOpvyOhw344FXg0dop3P1Nwt4p.Ve', 'David', 'Latter-day Saint'),
+(9, 'amina@example.com', '$2b$12$F6dLq31meG51ts8TNKTT9.PODOpvyOhw344FXg0dop3P1Nwt4p.Ve', 'Amina', 'Islam'),
+(10, 'rachel@example.com', '$2b$12$F6dLq31meG51ts8TNKTT9.PODOpvyOhw344FXg0dop3P1Nwt4p.Ve', 'Rachel', 'Judaism'),
+(11, 'noah@example.com', '$2b$12$F6dLq31meG51ts8TNKTT9.PODOpvyOhw344FXg0dop3P1Nwt4p.Ve', 'Noah', 'Christianity'),
+(12, 'layla@example.com', '$2b$12$F6dLq31meG51ts8TNKTT9.PODOpvyOhw344FXg0dop3P1Nwt4p.Ve', 'Layla', 'Islam'),
+(13, 'aaron@example.com', '$2b$12$F6dLq31meG51ts8TNKTT9.PODOpvyOhw344FXg0dop3P1Nwt4p.Ve', 'Aaron', 'Judaism'),
+(14, 'isha@example.com', '$2b$12$F6dLq31meG51ts8TNKTT9.PODOpvyOhw344FXg0dop3P1Nwt4p.Ve', 'Isha', 'Hinduism'),
+(15, 'ming@example.com', '$2b$12$F6dLq31meG51ts8TNKTT9.PODOpvyOhw344FXg0dop3P1Nwt4p.Ve', 'Ming', 'Buddhism');
 
 --------------------------------------------------
 -- THERAPISTS
--- Uses upsert so re-running the seed never wipes therapists added outside this file.
+-- Uses upsert so the insert stays idempotent if this file is adapted
+-- or re-run against a partially seeded database.
 -- photo_url is provided for the first 5 therapists.
 --------------------------------------------------
 INSERT INTO therapists (id, name, credentials, bio, faith_tradition, photo_url) VALUES

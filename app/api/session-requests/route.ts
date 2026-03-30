@@ -17,6 +17,37 @@ function isPgError(error: unknown): error is PgError {
   return typeof error === 'object' && error !== null && 'code' in error
 }
 
+export async function GET(request: NextRequest) {
+  try {
+    const sessionUser = await getSessionUserFromRequest(request)
+    if (!sessionUser) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+    }
+
+    // Fetch future sessions for the logged-in user
+    // Note: Using session_date and session_time to match your POST logic
+// Inside api/session-requests/route.ts -> GET function
+    const result = await query(
+      `SELECT 
+        id, 
+        'Therapy Session' as title, -- Add a default title since requested_sessions lacks one
+        session_date as date, 
+        session_time as time, 
+        description
+      FROM requested_sessions 
+      WHERE user_id = $1 AND session_date >= CURRENT_DATE 
+      ORDER BY session_date ASC, session_time ASC 
+      LIMIT 10`,
+      [sessionUser.id]
+    )
+
+    return NextResponse.json(result.rows)
+  } catch (error) {
+    console.error('GET /api/session-requests error:', error)
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const sessionUser = await getSessionUserFromRequest(request)

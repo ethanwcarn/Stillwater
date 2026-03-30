@@ -37,10 +37,15 @@ async function getProfileUser(userId: number): Promise<ProfileUser | null> {
 async function getFutureAppointments(userId: number): Promise<Appointment[]> {
   const result = await query<Appointment>(
     `
-      SELECT id, title, date, time, description
-      FROM appointments
-      WHERE user_id = $1 AND date >= CURRENT_DATE
-      ORDER BY date ASC, time ASC
+      SELECT 
+        id, 
+        'Therapy Session' as title, 
+        session_date as date, 
+        session_time as time, 
+        description
+      FROM requested_sessions
+      WHERE user_id = $1 AND session_date >= CURRENT_DATE -- Changed 'date' to 'session_date'
+      ORDER BY session_date ASC, session_time ASC            -- Changed 'date/time' to 'session_date/time'
       LIMIT 10
     `,
     [userId]

@@ -10,6 +10,7 @@ export interface PostWithBookmark {
   created_at: string
   bookmarked: boolean
   author_name: string | null
+  comment_count: number
 }
 
 export async function GET(request: NextRequest) {
@@ -24,10 +25,14 @@ export async function GET(request: NextRequest) {
       content: string
       created_at: string
       display_name: string | null
+      comment_count: string
     }>(
-      `SELECT cp.id, cp.author_id, cp.title, cp.content, cp.created_at, u.display_name
+      `SELECT cp.id, cp.author_id, cp.title, cp.content, cp.created_at, u.display_name,
+              COUNT(pc.id) AS comment_count
        FROM community_posts cp
        LEFT JOIN users u ON cp.author_id = u.id
+       LEFT JOIN post_comments pc ON pc.post_id = cp.id
+       GROUP BY cp.id, u.display_name
        ORDER BY cp.created_at DESC`
     )
 
@@ -48,6 +53,7 @@ export async function GET(request: NextRequest) {
       created_at: row.created_at,
       author_name: row.display_name,
       bookmarked: bookmarkedIds.has(row.id),
+      comment_count: parseInt(row.comment_count, 10) || 0,
     }))
 
     return NextResponse.json(posts)

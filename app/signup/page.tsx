@@ -16,7 +16,7 @@ export default function SignUpPage() {
     lastName: '',
     email: '',
     faithTradition: '',
-    password: '',
+    password: '', 
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [serverError, setServerError] = useState('')

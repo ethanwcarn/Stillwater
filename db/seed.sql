@@ -47,37 +47,37 @@ INSERT INTO therapists (id, name, credentials, bio, faith_tradition, photo_url) 
 (3,  'Rachel Cohen',      'LCSW',        'Works with individuals and families navigating grief and life transitions.',                            'Judaism',        '/therapists/jeanine.jpg'),
 (4,  'Priya Patel',       'LMFT',        'Supports couples and families with culturally aware and spiritually respectful care.',                  'Hinduism',       '/therapists/priya.jpg'),
 (5,  'Tenzin Dorje',      'PhD',         'Uses mindfulness-based approaches to help manage stress and anxiety.',                                  'Buddhism',       '/therapists/sophia.jpg'),
-(6,  'Maria Lopez',       'LCMHC',       'Provides trauma-informed therapy with a compassionate, faith-aware approach.',                         'Catholicism',    NULL),
-(7,  'James Walker',      'LPC',         'Helps clients with addiction recovery, depression, and purpose.',                                       'Latter-day Saint', NULL),
-(8,  'Noor Siddiqui',     'LMHC',        'Specializes in women''s mental health and culturally responsive counseling.',                          'Islam',          NULL),
+(6,  'Maria Lopez',       'LCMHC',       'Provides trauma-informed therapy with a compassionate, faith-aware approach.',                         'Catholicism',    '/therapists/unnamed.jpg'),
+(7,  'James Walker',      'LPC',         'Helps clients with addiction recovery, depression, and purpose.',                                       'Latter-day Saint', '/therapists/b5da633a-40fa-4ea0-aa69-fa1e535bdf81.jpg'),
+(8,  'Noor Siddiqui',     'LMHC',        'Specializes in women''s mental health and culturally responsive counseling.',                          'Islam',          '/therapists/a084f2ca-d84c-4d7e-bf05-cb47dcc7e927.jpg'),
 (9,  'Grace Kim',         'LCSW',        'Supports teens and adults dealing with stress and relationships.',                                      'Christianity',   NULL),
-(10, 'Daniel Stein',      'PhD, LMFT',   'Focuses on marriage, family relationships, and healing.',                                              'Judaism',        NULL),
-(11, 'Liam O''Connor',    'LMFT',        'Helps individuals navigate anxiety and life transitions.',                                              'Christianity',   NULL),
-(12, 'Fatima Khan',       'LCSW',        'Focuses on trauma recovery and culturally sensitive counseling.',                                       'Islam',          NULL),
-(13, 'Ethan Goldberg',    'PhD',         'Works with families and couples to strengthen relationships.',                                          'Judaism',        NULL),
-(14, 'Sofia Martinez',    'LCMHC',       'Supports clients dealing with depression and identity challenges.',                                     'Catholicism',    NULL),
-(15, 'Arjun Mehta',       'LMFT',        'Provides holistic therapy integrating cultural and spiritual values.',                                  'Hinduism',       NULL),
-(16, 'Mei Lin',           'LPC',         'Uses mindfulness and compassion-based approaches to reduce stress.',                                    'Buddhism',       NULL),
-(17, 'Hannah Brooks',     'LCSW',        'Specializes in grief counseling and emotional healing.',                                                'Christianity',   NULL),
-(18, 'Yusuf Ali',         'LMHC',        'Helps clients manage anxiety and emotional resilience.',                                                'Islam',          NULL),
-(19, 'Rebecca Stein',     'LMFT',        'Supports families through conflict and life transitions.',                                              'Judaism',        NULL),
-(20, 'Daniel Park',       'LPC',         'Works with young adults navigating stress and burnout.',                                                'Christianity',   NULL),
+(10, 'Daniel Stein',      'PhD, LMFT',   'Focuses on marriage, family relationships, and healing.',                                              'Judaism',        '/therapists/8d5a1b6d-96c8-49d0-805b-3f8bd8ed23cc.jpg'),
+(11, 'Liam O''Connor',    'LMFT',        'Helps individuals navigate anxiety and life transitions.',                                              'Christianity',   '/therapists/4aa862cd-0d2a-4ee2-b724-0795d8ac7e2a.jpg'),
+(12, 'Fatima Khan',       'LCSW',        'Focuses on trauma recovery and culturally sensitive counseling.',                                       'Islam',          '/therapists/b562456a-f645-4d3d-b41d-b521a76c7238.jpg'),
+(13, 'Ethan Goldberg',    'PhD',         'Works with families and couples to strengthen relationships.',                                          'Judaism',        '/therapists/e7a4fa00-7e49-4270-956e-8172d56d9f8e.jpg'),
+(14, 'Sofia Martinez',    'LCMHC',       'Supports clients dealing with depression and identity challenges.',                                     'Catholicism',    '/therapists/f704e641-d228-49c5-b435-5768c146b201.jpg'),
+(15, 'Arjun Mehta',       'LMFT',        'Provides holistic therapy integrating cultural and spiritual values.',                                  'Hinduism',       '/therapists/29e176f0-53c1-4ed9-924f-ed97584962e4.jpg'),
+(16, 'Mei Lin',           'LPC',         'Uses mindfulness and compassion-based approaches to reduce stress.',                                    'Buddhism',       '/therapists/70d7fea8-7e3f-4c13-8a33-bf6020820127.jpg'),
+(17, 'Hannah Brooks',     'LCSW',        'Specializes in grief counseling and emotional healing.',                                                'Christianity',   '/therapists/40919e81-eb53-43bf-a6b6-de8f7b58e0db.jpg'),
+(18, 'Yusuf Ali',         'LMHC',        'Helps clients manage anxiety and emotional resilience.',                                                'Islam',          '/therapists/94bf52fc-947c-41a0-80f5-1f8f21a9b0bc.jpg'),
+(19, 'Rebecca Stein',     'LMFT',        'Supports families through conflict and life transitions.',                                              'Judaism',        '/therapists/05e00fa2-4447-45b0-b402-d3fad1cd1ec9.jpg'),
+(20, 'Daniel Park',       'LPC',         'Works with young adults navigating stress and burnout.',                                                'Christianity',   '/therapists/c3c96919-80cf-405e-a7c3-8e801bfd605e.jpg'),
 
 -- Sikhism (2)
-(21, 'Gurpreet Kaur',     'LCSW',        'Integrates Sikh values of seva and simran into compassionate, community-focused therapy.',                 'Sikhism',        NULL),
-(22, 'Harjinder Singh',   'PhD, LPC',    'Draws on Gurbani teachings to support clients through grief, identity, and life transitions.',             'Sikhism',        NULL),
+(21, 'Gurpreet Kaur',     'LCSW',        'Integrates Sikh values of seva and simran into compassionate, community-focused therapy.',                 'Sikhism',        '/therapists/e6d92fcb-a6bd-4b12-a52c-9a1ac6bbf2d2.jpg'),
+(22, 'Harjinder Singh',   'PhD, LPC',    'Draws on Gurbani teachings to support clients through grief, identity, and life transitions.',             'Sikhism',        '/therapists/4556942b-98ba-4610-a55c-8227afa968e6.jpg'),
 
 -- Interfaith (2)
-(23, 'Dr. Anika Patel',   'PhD, LMFT',   'Works across faith traditions to help clients find meaning and healing through shared spiritual values.',  'Interfaith',     NULL),
-(24, 'Omar Khalil',       'LCSW',        'Bridges diverse spiritual backgrounds to offer inclusive, faith-sensitive mental health support.',          'Interfaith',     NULL),
+(23, 'Dr. Anika Patel',   'PhD, LMFT',   'Works across faith traditions to help clients find meaning and healing through shared spiritual values.',  'Interfaith',     '/therapists/4a0c4a12-8303-48ff-bdb2-2da73c7eaff3.jpg'),
+(24, 'Omar Khalil',       'LCSW',        'Bridges diverse spiritual backgrounds to offer inclusive, faith-sensitive mental health support.',          'Interfaith',     '/therapists/e5e13b52-cae7-4e2f-a0d5-348d29175498.jpg'),
 
 -- Secular / No preference (2)
 (25, 'Dr. Claire Hughes', 'PhD, LPC',    'Evidence-based therapist offering a non-religious, judgment-free space for growth and healing.',           'Secular / No preference', NULL),
-(26, 'Marcus Webb',       'LMHC',        'Specializes in CBT and mindfulness for clients who prefer a secular therapeutic approach.',                'Secular / No preference', NULL),
+(26, 'Marcus Webb',       'LMHC',        'Specializes in CBT and mindfulness for clients who prefer a secular therapeutic approach.',                'Secular / No preference', '/therapists/c34b3df9-2c45-44f7-a20a-20915958dc23.jpg'),
 
 -- Other (2)
-(27, 'Leila Nasser',      'LCSW',        'Supports clients whose spiritual lives fall outside mainstream traditions with warmth and openness.',      'Other',          NULL),
-(28, 'Dr. Sam Flores',    'PhD',         'Works with clients from emerging and indigenous spiritual traditions to promote holistic well-being.',      'Other',          NULL)
+(27, 'Leila Nasser',      'LCSW',        'Supports clients whose spiritual lives fall outside mainstream traditions with warmth and openness.',      'Other',          '/therapists/d29cc95e-4fd1-4a50-94ec-a8b7d2cd3663.jpg'),
+(28, 'Dr. Sam Flores',    'PhD',         'Works with clients from emerging and indigenous spiritual traditions to promote holistic well-being.',      'Other',          '/therapists/7ae00b83-63ee-4791-9567-8197eb00edc5.jpg')
 ON CONFLICT (id) DO UPDATE SET
   photo_url       = EXCLUDED.photo_url,
   name            = EXCLUDED.name,

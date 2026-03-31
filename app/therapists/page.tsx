@@ -4,7 +4,6 @@ import { query } from '@/lib/db'
 import { faithTraditions } from '@/lib/faith-traditions'
 import Link from 'next/link'
 import { TherapistFaithFilter } from '@/app/therapists/therapist-faith-filter'
-import { featuredTherapists } from '@/lib/therapists'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,11 +13,8 @@ type Therapist = {
   credentials: string | null
   bio: string | null
   faith_tradition: string | null
+  photo_url: string | null
 }
-
-const photoMap = Object.fromEntries(
-  featuredTherapists.map((t) => [t.id, t.photo_url])
-)
 
 const faithList = faithTraditions as readonly string[]
 
@@ -65,7 +61,7 @@ async function getTherapists(faith?: string, keyword?: string): Promise<Therapis
     const whereClause = filters.length > 0 ? `WHERE ${filters.join(' AND ')}` : ''
     const result = await query<Therapist>(
       `
-      SELECT t.id, t.name, t.credentials, t.bio, t.faith_tradition
+      SELECT t.id, t.name, t.credentials, t.bio, t.faith_tradition, t.photo_url
       FROM therapists t
       ${whereClause}
       ORDER BY t.name
@@ -162,10 +158,10 @@ export default async function TherapistsPage({ searchParams }: TherapistsPagePro
                 href={`/therapists/${therapist.id}`}
                 className="group relative rounded-2xl border bg-card p-6 shadow-sm transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                {photoMap[therapist.id] && (
+                {therapist.photo_url && (
                   <div className="absolute right-[58px] top-8 h-[72px] w-[72px] overflow-hidden rounded-full border border-border">
                     <Image
-                      src={photoMap[therapist.id]}
+                      src={therapist.photo_url}
                       alt={therapist.name}
                       fill
                       className="object-cover"

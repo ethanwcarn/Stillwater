@@ -1,8 +1,10 @@
+import Image from 'next/image'
 import { Suspense } from 'react'
 import { query } from '@/lib/db'
 import { faithTraditions } from '@/lib/faith-traditions'
 import Link from 'next/link'
 import { TherapistFaithFilter } from '@/app/therapists/therapist-faith-filter'
+import { featuredTherapists } from '@/lib/therapists'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,6 +15,10 @@ type Therapist = {
   bio: string | null
   faith_tradition: string | null
 }
+
+const photoMap = Object.fromEntries(
+  featuredTherapists.map((t) => [t.id, t.photo_url])
+)
 
 const faithList = faithTraditions as readonly string[]
 
@@ -135,7 +141,7 @@ export default async function TherapistsPage({ searchParams }: TherapistsPagePro
             ) : (
               keywordFilter ? (
                 <p>
-                  No therapists match "{keywordFilter}".{' '}
+                  No therapists match &quot;{keywordFilter}&quot;.{' '}
                   <Link href="/therapists" className="font-medium text-primary underline-offset-4 hover:underline">
                     Show all therapists
                   </Link>
@@ -154,12 +160,24 @@ export default async function TherapistsPage({ searchParams }: TherapistsPagePro
               <Link
                 key={therapist.id}
                 href={`/therapists/${therapist.id}`}
-                className="group rounded-2xl border bg-card p-6 shadow-sm transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="group relative rounded-2xl border bg-card p-6 shadow-sm transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
+                {photoMap[therapist.id] && (
+                  <div className="absolute right-[58px] top-8 h-[72px] w-[72px] overflow-hidden rounded-full border border-border">
+                    <Image
+                      src={photoMap[therapist.id]}
+                      alt={therapist.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                )}
                 <article>
-                  <h2 className="font-serif text-xl font-semibold text-foreground group-hover:text-primary">
-                    {therapist.name}
-                  </h2>
+                  <div className="pr-24">
+                    <h2 className="font-serif text-xl font-semibold text-foreground group-hover:text-primary">
+                      {therapist.name}
+                    </h2>
+                  </div>
 
                   {therapist.credentials && (
                     <p className="mt-1 text-sm font-medium text-primary">

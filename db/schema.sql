@@ -40,7 +40,7 @@ CREATE TABLE password_reset_tokens (
   token_hash VARCHAR(64) NOT NULL UNIQUE,
   expires_at TIMESTAMPTZ NOT NULL,
   used_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- 3. User Sessions
@@ -49,7 +49,7 @@ CREATE TABLE user_sessions (
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   token_hash VARCHAR(64) NOT NULL UNIQUE,
   expires_at TIMESTAMPTZ NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- 4. Therapists
@@ -60,6 +60,7 @@ CREATE TABLE therapists (
   credentials VARCHAR(255),
   bio TEXT,
   faith_tradition VARCHAR(100),
+  photo_url VARCHAR(500),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -78,7 +79,7 @@ CREATE TABLE requested_sessions (
   therapist_id INTEGER NOT NULL REFERENCES therapists(id) ON DELETE CASCADE,
   session_date DATE NOT NULL,
   session_time TIME NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   UNIQUE(therapist_id, session_date, session_time)
 );
 
@@ -104,17 +105,8 @@ CREATE TABLE post_comments (
 CREATE TABLE user_post_bookmarks (
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   post_id INTEGER NOT NULL REFERENCES community_posts(id) ON DELETE CASCADE,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   PRIMARY KEY (user_id, post_id)
-);
-
--- 10. User sessions table
-CREATE TABLE user_sessions (
-  id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  token_hash VARCHAR(64) NOT NULL UNIQUE,
-  expires_at TIMESTAMPTZ NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Indexes for common queries

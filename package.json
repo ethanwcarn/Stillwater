@@ -68,12 +68,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.13",
-<<<<<<< Updated upstream
     "@types/node": "^22",
-=======
-    "@types/bcryptjs": "^2.4.6",
-    "@types/node": "22.19.15",
->>>>>>> Stashed changes
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
     "postcss": "^8.5",

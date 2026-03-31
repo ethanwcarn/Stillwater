@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useAuth } from '@/app/providers'
 import { Bookmark, BookmarkCheck, MessageCircle, Pencil, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -50,6 +50,12 @@ export function CommunityFeed() {
   const [editCommentContent, setEditCommentContent] = useState('')
   const [editCommentSubmitting, setEditCommentSubmitting] = useState(false)
 
+  // Create post state
+  const [title, setTitle] = useState('')
+  const [content, setContent] = useState('')
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   // Fetch current user ID so we can show/hide edit-delete buttons
   useEffect(() => {
     if (!userEmail) {
@@ -83,8 +89,6 @@ export function CommunityFeed() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userEmail])
 
-<<<<<<< Updated upstream
-=======
   // ── Create post ──────────────────────────────────────────────────────────────
 
   const handleCreatePost = async (event: FormEvent<HTMLFormElement>) => {
@@ -120,7 +124,6 @@ export function CommunityFeed() {
 
   // ── Bookmark ─────────────────────────────────────────────────────────────────
 
->>>>>>> Stashed changes
   const handleBookmark = async (postId: number, currentBookmarked: boolean) => {
     if (!authReady) return
 
@@ -335,18 +338,8 @@ export function CommunityFeed() {
     )
   }
 
-  if (posts.length === 0) {
-    return (
-      <p className="rounded-lg border bg-card p-8 text-center text-muted-foreground">
-        No posts yet.
-      </p>
-    )
-  }
-
   return (
     <div className="space-y-4">
-<<<<<<< Updated upstream
-=======
       {/* ── Create post ── */}
       <section className="rounded-2xl border bg-card p-6 shadow-sm">
         <div className="mb-4">
@@ -405,59 +398,11 @@ export function CommunityFeed() {
         )}
       </section>
 
->>>>>>> Stashed changes
       {authReady && !userEmail && (
         <p className="rounded-2xl border border-secondary/30 bg-secondary/10 p-3 text-sm text-accent">
           Sign in to bookmark posts and save your favorites.
         </p>
       )}
-<<<<<<< Updated upstream
-      {posts.map((post) => (
-        <article
-          key={post.id}
-          className="rounded-2xl border bg-card p-6 shadow-sm transition hover:shadow-md"
-        >
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0 flex-1">
-              {post.title && (
-                <h3 className="mb-1 font-serif font-semibold text-foreground">
-                  {post.title}
-                </h3>
-              )}
-              <p className="text-muted-foreground">
-                {post.author_name && (
-                  <span className="font-medium text-foreground">
-                    {post.author_name}
-                  </span>
-                )}
-                {post.author_name && ' · '}
-                <span className="text-sm">
-                  {new Date(post.created_at).toLocaleDateString()}
-                </span>
-              </p>
-              <p className="mt-2 text-sm leading-relaxed text-foreground">{post.content}</p>
-            </div>
-            <button
-              onClick={() => handleBookmark(post.id, post.bookmarked)}
-              className={cn(
-                'flex shrink-0 items-center justify-center rounded-full p-2 transition',
-                post.bookmarked
-                  ? 'text-primary hover:bg-primary/10'
-                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-              )}
-              aria-label={post.bookmarked ? 'Remove bookmark' : 'Bookmark post'}
-              title={post.bookmarked ? 'Remove bookmark' : 'Bookmark post'}
-            >
-              {post.bookmarked ? (
-                <BookmarkCheck size={22} />
-              ) : (
-                <Bookmark size={22} />
-              )}
-            </button>
-          </div>
-        </article>
-      ))}
-=======
 
       {/* ── Posts ── */}
       {posts.length === 0 ? (
@@ -738,7 +683,6 @@ export function CommunityFeed() {
           </article>
         ))
       )}
->>>>>>> Stashed changes
     </div>
   )
 }

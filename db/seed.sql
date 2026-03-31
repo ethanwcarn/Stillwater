@@ -13,7 +13,7 @@ RESTART IDENTITY CASCADE;
 
 -- Users (id 1 = Sarah, test user)
 INSERT INTO users (id, email, password_hash, display_name, faith_tradition) VALUES
-(1, 'sarah@example.com', NULL, 'Sarah', 'Christianity'),
+(1, 'sarah@example.com', '$2b$10$.jaBnLU/oR4OdWtxjMUR6OiCsf7WwLzacDHNkU7HzFN9YPbJq14p6', 'Sarah', 'Christianity'),
 (2, 'mike@example.com', NULL, 'Mike', 'Islam'),
 (3, 'jordan@example.com', NULL, 'Jordan', NULL),
 (4, 'ana@example.com', NULL, 'Ana', 'Judaism');

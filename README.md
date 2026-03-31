@@ -166,7 +166,7 @@ The following features are currently implemented and working in the app:
 
 3. **Sign in** with the seeded test user to use the persistent bookmark feature:
    - Email: `sarah@example.com`
-   - Password: any (mock auth accepts any password)
+   - Password: `Password123!`
 
 The backend runs inside the same Next.js process; there is no separate backend server to start.
 
@@ -178,7 +178,7 @@ This section confirms that one button—the **bookmark** button on community pos
 
 1. **Start the app** with the database configured and schema/seed applied (see above).
 
-2. **Sign in** as `sarah@example.com` (any password).
+2. **Sign in** as `sarah@example.com` with password `Password123!`.
 
 3. **Open the Community feed** (e.g. tap “Community” in the bottom navigation).
 
@@ -192,7 +192,7 @@ This section confirms that one button—the **bookmark** button on community pos
 
 6. **Confirm persistence:**
    - Refresh the page (F5 or reload).
-   - Sign in again with `sarah@example.com` if the mock auth resets.
+   - Sign in again with `sarah@example.com` if needed.
    - Go back to the Community feed.
    - The same post(s) should still show the correct bookmarked state (saved or not) as before the refresh.
 
@@ -200,7 +200,7 @@ This section confirms that one button—the **bookmark** button on community pos
    ```bash
    psql -d stillwaters -c "SELECT * FROM user_post_bookmarks;"
    ```
-   You should see one row per (user_id, post_id) for each bookmarked post. User 1 is Sarah; post IDs 1–4 correspond to the four seeded posts.
+   You should see one row per `(user_id, post_id)` for each bookmarked post. User `1` is Sarah.
 
 If all of the above hold, the vertical slice is working: the button triggers backend logic, updates the database, returns the updated value, and the UI reflects it and persists after refresh.
 
@@ -208,8 +208,8 @@ If all of the above hold, the vertical slice is working: the button triggers bac
 
 ## Database Scripts
 
-- **`db/schema.sql`** — Creates all tables (users, therapists, therapist_specialties, community_posts, post_comments, user_post_bookmarks). Safe to re-run only if you are okay with dropping and recreating these tables.
-- **`db/seed.sql`** — Inserts sample users, therapists, specialties, posts, comments, and one sample bookmark. Run after `schema.sql`.
+- **`db/schema.sql`** — Creates all current app tables, including auth/session and scheduling tables (`users`, `password_reset_tokens`, `user_sessions`, `therapists`, `therapist_specialties`, `requested_sessions`, `community_posts`, `post_comments`, `user_post_bookmarks`). Safe to re-run only if you are okay with dropping and recreating these tables.
+- **`db/seed.sql`** — Inserts sample users, therapists, specialties, posts, comments, and bookmarks. Run after `schema.sql`. Seeded users can sign in with password `Password123!`.
 
 To recreate the database from scratch:
 
@@ -228,7 +228,7 @@ If `schema.sql` or `seed.sql` fails on your machine, the most common cause is ru
 4. Recreate schema + data in order:
    - `psql -d postgres -f db/schema.sql`
    - `psql -d stillwaters -f db/seed.sql`
-5. Verify seeded rows: `psql -d stillwaters -c "SELECT COUNT(*) FROM community_posts;"` (should return 4 with current seed).
+5. Verify seeded rows: `psql -d stillwaters -c "SELECT COUNT(*) FROM community_posts;"` (should return 12 with current seed).
 
 ---
 

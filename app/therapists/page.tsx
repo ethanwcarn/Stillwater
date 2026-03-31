@@ -1,8 +1,10 @@
+import Image from 'next/image'
 import { Suspense } from 'react'
 import { query } from '@/lib/db'
 import { faithTraditions } from '@/lib/faith-traditions'
 import Link from 'next/link'
 import { TherapistFaithFilter } from '@/app/therapists/therapist-faith-filter'
+import { featuredTherapists } from '@/lib/therapists'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,6 +16,10 @@ type Therapist = {
   faith_tradition: string | null
 }
 
+const photoMap = Object.fromEntries(
+  featuredTherapists.map((t) => [t.id, t.photo_url])
+)
+
 const faithList = faithTraditions as readonly string[]
 
 function resolveFaithFilter(value: string | string[] | undefined): string | undefined {
@@ -24,25 +30,48 @@ function resolveFaithFilter(value: string | string[] | undefined): string | unde
   return faithList.includes(t) ? t : undefined
 }
 
-async function getTherapists(faith?: string): Promise<Therapist[]> {
+function resolveKeywordFilter(value: string | string[] | undefined): string | undefined {
+  const raw = Array.isArray(value) ? value[0] : value
+  const trimmed = raw?.trim()
+  return trimmed ? trimmed.slice(0, 100) : undefined
+}
+
+async function getTherapists(faith?: string, keyword?: string): Promise<Therapist[]> {
   try {
+    const filters: string[] = []
+    const values: string[] = []
+
     if (faith) {
-      const result = await query<Therapist>(
-        `
-        SELECT id, name, credentials, bio, faith_tradition
-        FROM therapists
-        WHERE faith_tradition = $1
-        ORDER BY name
-      `,
-        [faith]
-      )
-      return result.rows
+      values.push(faith)
+      filters.push(`t.faith_tradition = $${values.length}`)
     }
-    const result = await query<Therapist>(`
-      SELECT id, name, credentials, bio, faith_tradition
-      FROM therapists
-      ORDER BY name
-    `)
+
+    if (keyword) {
+      values.push(`%${keyword}%`)
+      const paramRef = `$${values.length}`
+      filters.push(`(
+        t.name ILIKE ${paramRef}
+        OR COALESCE(t.credentials, '') ILIKE ${paramRef}
+        OR COALESCE(t.bio, '') ILIKE ${paramRef}
+        OR EXISTS (
+          SELECT 1
+          FROM therapist_specialties ts
+          WHERE ts.therapist_id = t.id
+            AND ts.specialty ILIKE ${paramRef}
+        )
+      )`)
+    }
+
+    const whereClause = filters.length > 0 ? `WHERE ${filters.join(' AND ')}` : ''
+    const result = await query<Therapist>(
+      `
+      SELECT t.id, t.name, t.credentials, t.bio, t.faith_tradition
+      FROM therapists t
+      ${whereClause}
+      ORDER BY t.name
+    `,
+      values
+    )
     return result.rows
   } catch {
     return []
@@ -50,7 +79,7 @@ async function getTherapists(faith?: string): Promise<Therapist[]> {
 }
 
 type TherapistsPageProps = {
-  searchParams: Promise<{ faith?: string | string[] }>
+  searchParams: Promise<{ faith?: string | string[]; query?: string | string[] }>
 }
 
 function FaithFilterFallback() {
@@ -65,7 +94,8 @@ function FaithFilterFallback() {
 export default async function TherapistsPage({ searchParams }: TherapistsPageProps) {
   const params = await searchParams
   const faithFilter = resolveFaithFilter(params.faith)
-  const therapists = await getTherapists(faithFilter)
+  const keywordFilter = resolveKeywordFilter(params.query)
+  const therapists = await getTherapists(faithFilter, keywordFilter)
 
   return (
     <div className="min-h-screen">
@@ -103,13 +133,22 @@ export default async function TherapistsPage({ searchParams }: TherapistsPagePro
           <div className="rounded-2xl border bg-card p-6 text-muted-foreground">
             {faithFilter ? (
               <p>
-                No therapists for this tradition yet.{' '}
+                No therapists match the current filters.{' '}
                 <Link href="/therapists" className="font-medium text-primary underline-offset-4 hover:underline">
-                  Show all therapists
+                  Clear filters
                 </Link>
               </p>
             ) : (
-              'No therapists are available yet.'
+              keywordFilter ? (
+                <p>
+                  No therapists match &quot;{keywordFilter}&quot;.{' '}
+                  <Link href="/therapists" className="font-medium text-primary underline-offset-4 hover:underline">
+                    Show all therapists
+                  </Link>
+                </p>
+              ) : (
+                'No therapists are available yet.'
+              )
             )}
           </div>
         ) : (
@@ -118,32 +157,47 @@ export default async function TherapistsPage({ searchParams }: TherapistsPagePro
             className="grid grid-cols-1 gap-4 md:grid-cols-2"
           >
             {therapists.map((therapist) => (
-              <article
+              <Link
                 key={therapist.id}
-                className="rounded-2xl border bg-card p-6 shadow-sm transition hover:shadow-md"
+                href={`/therapists/${therapist.id}`}
+                className="group relative rounded-2xl border bg-card p-6 shadow-sm transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                <h2 className="font-serif text-xl font-semibold text-foreground">
-                  {therapist.name}
-                </h2>
-
-                {therapist.credentials && (
-                  <p className="mt-1 text-sm font-medium text-primary">
-                    {therapist.credentials}
-                  </p>
+                {photoMap[therapist.id] && (
+                  <div className="absolute right-[58px] top-8 h-[72px] w-[72px] overflow-hidden rounded-full border border-border">
+                    <Image
+                      src={photoMap[therapist.id]}
+                      alt={therapist.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
                 )}
+                <article>
+                  <div className="pr-24">
+                    <h2 className="font-serif text-xl font-semibold text-foreground group-hover:text-primary">
+                      {therapist.name}
+                    </h2>
+                  </div>
 
-                {therapist.faith_tradition && (
-                  <span className="mt-3 inline-block rounded-full bg-secondary/15 px-3 py-1 text-xs font-medium text-secondary">
-                    {therapist.faith_tradition}
-                  </span>
-                )}
+                  {therapist.credentials && (
+                    <p className="mt-1 text-sm font-medium text-primary">
+                      {therapist.credentials}
+                    </p>
+                  )}
 
-                {therapist.bio && (
-                  <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                    {therapist.bio}
-                  </p>
-                )}
-              </article>
+                  {therapist.faith_tradition && (
+                    <span className="mt-3 inline-block rounded-full bg-secondary/15 px-3 py-1 text-xs font-medium text-secondary">
+                      {therapist.faith_tradition}
+                    </span>
+                  )}
+
+                  {therapist.bio && (
+                    <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                      {therapist.bio}
+                    </p>
+                  )}
+                </article>
+              </Link>
             ))}
           </section>
         )}

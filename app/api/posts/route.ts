@@ -13,10 +13,20 @@ export interface PostWithBookmark {
   comment_count: number
 }
 
+interface PostsPageResponse {
+  posts: PostWithBookmark[]
+  hasMore: boolean
+  nextOffset: number | null
+}
+
 export async function GET(request: NextRequest) {
   try {
     const sessionUser = await getSessionUserFromRequest(request)
     const userId = sessionUser?.id ?? null
+    const limitParam = Number.parseInt(request.nextUrl.searchParams.get('limit') ?? '', 10)
+    const offsetParam = Number.parseInt(request.nextUrl.searchParams.get('offset') ?? '', 10)
+    const limit = Number.isFinite(limitParam) ? Math.min(Math.max(limitParam, 1), 20) : 10
+    const offset = Number.isFinite(offsetParam) ? Math.max(offsetParam, 0) : 0
 
     const postsResult = await query<{
       id: number
@@ -27,25 +37,36 @@ export async function GET(request: NextRequest) {
       display_name: string | null
       comment_count: string
     }>(
-      `SELECT cp.id, cp.author_id, cp.title, cp.content, cp.created_at, u.display_name,
+      `WITH paginated_posts AS (
+         SELECT cp.id, cp.author_id, cp.title, cp.content, cp.created_at, u.display_name
+         FROM community_posts cp
+         LEFT JOIN users u ON cp.author_id = u.id
+         ORDER BY cp.created_at DESC, cp.id DESC
+         LIMIT $1
+         OFFSET $2
+       )
+       SELECT pp.id, pp.author_id, pp.title, pp.content, pp.created_at, pp.display_name,
               COUNT(pc.id) AS comment_count
-       FROM community_posts cp
-       LEFT JOIN users u ON cp.author_id = u.id
-       LEFT JOIN post_comments pc ON pc.post_id = cp.id
-       GROUP BY cp.id, u.display_name
-       ORDER BY cp.created_at DESC`
+       FROM paginated_posts pp
+       LEFT JOIN post_comments pc ON pc.post_id = pp.id
+       GROUP BY pp.id, pp.author_id, pp.title, pp.content, pp.created_at, pp.display_name
+       ORDER BY pp.created_at DESC, pp.id DESC`,
+      [limit + 1, offset]
     )
 
     let bookmarkedIds: Set<number> = new Set()
-    if (userId) {
+    const paginatedRows = postsResult.rows.slice(0, limit)
+    const postIds = paginatedRows.map((row) => row.id)
+
+    if (userId && postIds.length > 0) {
       const bookmarksResult = await query<{ post_id: number }>(
-        'SELECT post_id FROM user_post_bookmarks WHERE user_id = $1',
-        [userId]
+        'SELECT post_id FROM user_post_bookmarks WHERE user_id = $1 AND post_id = ANY($2::int[])',
+        [userId, postIds]
       )
       bookmarkedIds = new Set(bookmarksResult.rows.map((r) => r.post_id))
     }
 
-    const posts: PostWithBookmark[] = postsResult.rows.map((row) => ({
+    const posts: PostWithBookmark[] = paginatedRows.map((row) => ({
       id: row.id,
       author_id: row.author_id,
       title: row.title,
@@ -56,7 +77,13 @@ export async function GET(request: NextRequest) {
       comment_count: parseInt(row.comment_count, 10) || 0,
     }))
 
-    return NextResponse.json(posts)
+    const response: PostsPageResponse = {
+      posts,
+      hasMore: postsResult.rows.length > limit,
+      nextOffset: postsResult.rows.length > limit ? offset + posts.length : null,
+    }
+
+    return NextResponse.json(response)
   } catch (error) {
     console.error('GET /api/posts error:', error)
     return NextResponse.json(
@@ -133,6 +160,7 @@ export async function POST(request: NextRequest) {
       created_at: postResult.rows[0].created_at,
       author_name: postResult.rows[0].display_name,
       bookmarked: false,
+      comment_count: 0,
     }
 
     return NextResponse.json(createdPost, { status: 201 })

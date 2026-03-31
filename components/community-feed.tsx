@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useEffectEvent, useRef, useState, type FormEvent } from 'react'
 import { useAuth } from '@/app/providers'
 import { Bookmark, BookmarkCheck, MessageCircle, Pencil, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -25,12 +25,24 @@ interface Comment {
   author_name: string | null
 }
 
+interface PostsPageResponse {
+  posts: Post[]
+  hasMore: boolean
+  nextOffset: number | null
+}
+
+const PAGE_SIZE = 5
+
 export function CommunityFeed() {
   const { userEmail, authReady } = useAuth()
   const [userId, setUserId] = useState<number | null>(null)
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [hasMore, setHasMore] = useState(true)
+  const [nextOffset, setNextOffset] = useState(0)
+  const loadMoreRef = useRef<HTMLDivElement | null>(null)
 
   // Comment state (per-post maps)
   const [expandedPosts, setExpandedPosts] = useState<Set<number>>(new Set())
@@ -68,26 +80,78 @@ export function CommunityFeed() {
       .catch(() => setUserId(null))
   }, [userEmail])
 
-  const fetchPosts = async () => {
-    setLoading(true)
+  const fetchPosts = async (
+    { offset = 0, replace = false }: { offset?: number; replace?: boolean } = {}
+  ) => {
+    if (replace) {
+      setLoading(true)
+    } else {
+      setLoadingMore(true)
+    }
+
     setError(null)
     try {
-      const res = await fetch('/api/posts')
+      const params = new URLSearchParams({
+        limit: String(PAGE_SIZE),
+        offset: String(offset),
+      })
+      const res = await fetch(`/api/posts?${params.toString()}`)
       if (!res.ok) throw new Error('Failed to fetch posts')
-      const data = await res.json()
-      setPosts(data)
+      const data: PostsPageResponse = await res.json()
+
+      setPosts((prev) => {
+        if (replace) {
+          return data.posts
+        }
+
+        const seen = new Set(prev.map((post) => post.id))
+        const nextPosts = data.posts.filter((post) => !seen.has(post.id))
+        return [...prev, ...nextPosts]
+      })
+      setHasMore(data.hasMore)
+      setNextOffset(data.nextOffset ?? offset)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {
-      setLoading(false)
+      if (replace) {
+        setLoading(false)
+      } else {
+        setLoadingMore(false)
+      }
     }
   }
 
   useEffect(() => {
-    fetchPosts()
+    setPosts([])
+    setHasMore(true)
+    setNextOffset(0)
+    void fetchPosts({ offset: 0, replace: true })
     // Refetch when user signs in/out to update bookmarked status
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userEmail])
+
+  const loadMorePosts = useEffectEvent(() => {
+    if (loading || loadingMore || !hasMore || error) return
+    void fetchPosts({ offset: nextOffset, replace: false })
+  })
+
+  useEffect(() => {
+    const node = loadMoreRef.current
+    if (!node) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0]
+        if (entry?.isIntersecting) {
+          loadMorePosts()
+        }
+      },
+      { rootMargin: '240px 0px' }
+    )
+
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [loadMorePosts])
 
   // ── Create post ──────────────────────────────────────────────────────────────
 
@@ -114,7 +178,7 @@ export function CommunityFeed() {
 
       setTitle('')
       setContent('')
-      await fetchPosts()
+      await fetchPosts({ offset: 0, replace: true })
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : 'Failed to create post')
     } finally {
@@ -331,7 +395,15 @@ export function CommunityFeed() {
         <p className="mt-2 text-sm">
           Ensure PostgreSQL is running and you&apos;ve run db/schema.sql and db/seed.sql.
         </p>
-        <button onClick={fetchPosts} className="mt-3 text-sm underline hover:no-underline">
+        <button
+          onClick={() => {
+            setPosts([])
+            setHasMore(true)
+            setNextOffset(0)
+            void fetchPosts({ offset: 0, replace: true })
+          }}
+          className="mt-3 text-sm underline hover:no-underline"
+        >
           Retry
         </button>
       </div>
@@ -410,11 +482,12 @@ export function CommunityFeed() {
           No posts yet.
         </p>
       ) : (
-        posts.map((post) => (
-          <article
-            key={post.id}
-            className="rounded-2xl border bg-card shadow-sm transition hover:shadow-md"
-          >
+        <>
+          {posts.map((post) => (
+            <article
+              key={post.id}
+              className="rounded-2xl border bg-card shadow-sm transition hover:shadow-md"
+            >
             <div className="p-6">
               <div className="flex items-start justify-between gap-4">
                 {/* Post body / inline edit */}
@@ -680,8 +753,35 @@ export function CommunityFeed() {
                 )}
               </div>
             )}
-          </article>
-        ))
+            </article>
+          ))}
+
+          <div ref={loadMoreRef} className="h-1" aria-hidden="true" />
+
+          {loadingMore && (
+            <p className="rounded-2xl border bg-card p-4 text-center text-sm text-muted-foreground">
+              Loading more posts...
+            </p>
+          )}
+
+          {!loadingMore && hasMore && (
+            <div className="flex justify-center">
+              <button
+                type="button"
+                onClick={() => loadMorePosts()}
+                className="rounded-full border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted"
+              >
+                Load more posts
+              </button>
+            </div>
+          )}
+
+          {!hasMore && posts.length > 0 && (
+            <p className="text-center text-sm text-muted-foreground">
+              You&apos;ve reached the end of the community feed.
+            </p>
+          )}
+        </>
       )}
     </div>
   )

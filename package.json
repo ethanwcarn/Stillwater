@@ -3,10 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "setup:check": "node scripts/check-env.mjs",
     "dev": "next dev --turbo",
+    "predev": "node scripts/check-env.mjs --mode=app",
     "build": "next build",
+    "prebuild": "node scripts/check-env.mjs --mode=app",
     "migrate": "node scripts/migrate.mjs",
+    "premigrate": "node scripts/check-env.mjs --mode=migrate",
     "start": "next start -p 4041",
+    "prestart": "node scripts/check-env.mjs --mode=app",
     "lint": "next lint"
   },
   "dependencies": {

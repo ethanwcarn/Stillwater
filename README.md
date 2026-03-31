@@ -139,8 +139,8 @@ The following features are currently implemented and working in the app:
    ```
    The seed is re-runnable (it truncates and repopulates tables), so you can run it repeatedly while developing.
 
-5. **Configure the database URL**  
-   Copy the example env file and set your connection string:
+5. **Configure local environment variables**  
+   Copy the example env file:
    ```bash
    cp .env.example .env
    ```
@@ -149,6 +149,16 @@ The following features are currently implemented and working in the app:
    DATABASE_URL=postgresql://USER:PASSWORD@localhost:5432/stillwaters
    ```
    Replace `USER` and `PASSWORD` with your local PostgreSQL credentials. Default user is often `postgres`; port is usually `5432`.
+   Optional values already documented in `.env.example`:
+   - `DB_MIGRATE_URL` if you use a separate database user for migrations
+   - `APP_ORIGIN` so password reset links use the correct base URL
+   - `MAILGUN_API_KEY` and `MAILGUN_DOMAIN` if you want password reset emails to send
+
+6. **Run the setup check**
+   ```bash
+   npm run setup:check
+   ```
+   This validates that the required environment variables are present and warns when optional Mailgun or origin settings are missing.
 
 ---
 
@@ -158,6 +168,7 @@ The following features are currently implemented and working in the app:
    ```bash
    npm run dev
    ```
+   The app now runs an environment check automatically before `dev`, `build`, `start`, and `migrate`.
 
 2. **Open the app** in your browser at:
    ```

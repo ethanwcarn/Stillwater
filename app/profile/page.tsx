@@ -173,7 +173,8 @@ export default async function ProfilePage() {
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-foreground">{appointment.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    {appointment.date} at {appointment.time}
+                    {/* Fix: Wrap in new Date() and convert to string */}
+                    {new Date(appointment.date).toLocaleDateString()} at {appointment.time}
                   </p>
                   {appointment.description && (
                     <p className="mt-1 text-xs text-muted-foreground">{appointment.description}</p>

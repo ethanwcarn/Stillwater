@@ -11,12 +11,13 @@ type TherapistOption = {
   id: number
   name: string
   credentials: string | null
+  photo_url: string | null
 }
 
 async function getTherapists(): Promise<TherapistOption[]> {
   try {
     const result = await query<TherapistOption>(`
-      SELECT id, name, credentials
+      SELECT id, name, credentials, photo_url
       FROM therapists
       ORDER BY name
     `)
@@ -26,12 +27,19 @@ async function getTherapists(): Promise<TherapistOption[]> {
   }
 }
 
-export default async function RequestSessionPage() {
+type RequestSessionPageProps = {
+  searchParams: Promise<{ therapistId?: string }>
+}
+
+export default async function RequestSessionPage({ searchParams }: RequestSessionPageProps) {
   const cookieStore = await cookies()
   const currentUser = await getSessionUserFromCookieStore(cookieStore)
   if (!currentUser) {
     redirect('/signin')
   }
+
+  const { therapistId } = await searchParams
+  const defaultTherapistId = therapistId ? Number(therapistId) : undefined
 
   const therapists = await getTherapists()
 
@@ -55,7 +63,7 @@ export default async function RequestSessionPage() {
             No providers are available to request right now.
           </div>
         ) : (
-          <SessionRequestForm therapists={therapists} />
+          <SessionRequestForm therapists={therapists} defaultTherapistId={defaultTherapistId} />
         )}
       </main>
     </div>

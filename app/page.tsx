@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { Search, CalendarPlus, Users } from 'lucide-react'
+import { TherapistCarousel } from '@/components/therapist-carousel'
 import { useAuth } from './providers'
 
 export default function HomePage() {
@@ -76,7 +77,7 @@ export default function HomePage() {
               <Link
                 key={step.title}
                 href={step.href}
-                className="group rounded-2xl border border-border/50 bg-card p-8 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                className="group rounded-2xl border border-border/50 bg-card p-5 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg md:p-8"
               >
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary/20 text-accent transition-colors duration-300 group-hover:bg-secondary/30">
                   <step.icon className="h-7 w-7" />
@@ -86,6 +87,34 @@ export default function HomePage() {
               </Link>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Featured Therapists */}
+      <section className="bg-muted/30 py-16 md:py-20">
+        <div className="mx-auto max-w-5xl px-4">
+          <div className="flex items-end justify-between">
+            <div>
+              <h2 className="font-serif text-2xl font-semibold text-foreground md:text-3xl">
+                Featured Therapists
+              </h2>
+              <p className="mt-2 text-muted-foreground">
+                Faith-informed professionals ready to walk with you
+              </p>
+            </div>
+            <Link href="/therapists" className="hidden text-sm font-medium text-accent hover:underline md:block">
+              View all
+            </Link>
+          </div>
+        </div>
+        {/* Carousel sits outside px-4 on mobile so cards can peek at the right edge */}
+        <div className="mt-8 px-4 md:mx-auto md:max-w-5xl">
+          <TherapistCarousel />
+        </div>
+        <div className="mt-4 px-4 text-center md:hidden">
+          <Link href="/therapists" className="text-sm font-medium text-accent hover:underline">
+            View all therapists
+          </Link>
         </div>
       </section>
 
@@ -150,8 +179,8 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="border-t border-border bg-card px-4 py-10">
         <div className="mx-auto max-w-5xl">
-          <div className="grid gap-8 md:grid-cols-4">
-            <div>
+          <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+            <div className="col-span-2 md:col-span-1">
               <p className="font-serif text-base font-semibold text-foreground">Stillwaters</p>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                 Faith-integrated mental health support for every journey.

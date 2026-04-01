@@ -240,7 +240,11 @@ export default function HomePage() {
             ))}
           </div>
           <div className="mt-8 border-t border-border pt-6 text-center text-xs text-muted-foreground">
-            2026 Stillwaters. All rights reserved.
+            2026{" "}
+            <a href="https://grafana.dojo.aechay.com/public-dashboards/6b1696c01e024a8c9038424fdacded37">
+              Stillwaters.
+            </a>{" "}
+            All rights reserved.
           </div>
         </div>
       </footer>

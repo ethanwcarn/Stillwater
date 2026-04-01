@@ -28,6 +28,12 @@ jobs:
         run: npm ci
 
       - name: Build app
+        env:
+          DATABASE_URL: postgresql://localhost:5432/stillwaters
+          DB_MIGRAGE_URL: postgresql://localhost:5432/stillwaters
+          APP_ORIGIN: http://localhost:3000
+          MAILGUN_API_KEY: TEST
+          MAILGUN_DOMAIN: TEST
         run: npm run build
 
       - name: Deploy to VPS

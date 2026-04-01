@@ -14,6 +14,8 @@ interface Post {
   author_name: string | null
   bookmarked: boolean
   comment_count: number
+  reaction_counts: Record<string, number>
+  my_reaction: string | null
 }
 
 interface Comment {
@@ -32,6 +34,8 @@ interface PostsPageResponse {
 }
 
 const PAGE_SIZE = 5
+
+const POST_REACTION_EMOJIS = ['❤️', '👍', '🙌', '🙏', '🥹', '💕'] as const
 
 export function CommunityFeed() {
   const { userEmail, authReady } = useAuth()
@@ -67,6 +71,7 @@ export function CommunityFeed() {
   const [content, setContent] = useState('')
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [reactionPendingPostId, setReactionPendingPostId] = useState<number | null>(null)
 
   // Fetch current user ID so we can show/hide edit-delete buttons
   useEffect(() => {
@@ -126,7 +131,7 @@ export function CommunityFeed() {
     setHasMore(true)
     setNextOffset(0)
     void fetchPosts({ offset: 0, replace: true })
-    // Refetch when user signs in/out to update bookmarked status
+    // Refetch when user signs in/out to update bookmarks and reactions
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userEmail])
 
@@ -214,6 +219,47 @@ export function CommunityFeed() {
         prev.map((p) => (p.id === postId ? { ...p, bookmarked: currentBookmarked } : p))
       )
       alert(err instanceof Error ? err.message : 'Failed to update bookmark')
+    }
+  }
+
+  // ── Reactions ───────────────────────────────────────────────────────────────
+
+  const handleReaction = async (post: Post, emoji: string) => {
+    if (!authReady) return
+    if (!userEmail) {
+      alert('Please sign in to react to posts.')
+      return
+    }
+    if (reactionPendingPostId !== null) return
+
+    const nextReaction = post.my_reaction === emoji ? null : emoji
+    setReactionPendingPostId(post.id)
+    try {
+      const res = await fetch(`/api/posts/${post.id}/reaction`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reaction: nextReaction }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || 'Failed to update reaction')
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === post.id
+            ? {
+                ...p,
+                my_reaction: data.my_reaction ?? null,
+                reaction_counts:
+                  typeof data.reaction_counts === 'object' && data.reaction_counts !== null
+                    ? data.reaction_counts
+                    : p.reaction_counts,
+              }
+            : p
+        )
+      )
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to update reaction')
+    } finally {
+      setReactionPendingPostId(null)
     }
   }
 
@@ -607,6 +653,50 @@ export function CommunityFeed() {
                   </button>
                 </div>
               </div>
+
+              {editingPostId !== post.id && (
+                <div className="mt-3 flex flex-wrap items-center gap-1">
+                  {POST_REACTION_EMOJIS.map((emoji) => {
+                    const count = post.reaction_counts[emoji] ?? 0
+                    const isMine = post.my_reaction === emoji
+                    const pending = reactionPendingPostId === post.id
+                    return (
+                      <button
+                        key={emoji}
+                        type="button"
+                        disabled={pending}
+                        onClick={() => handleReaction(post, emoji)}
+                        className={cn(
+                          'inline-flex min-h-9 min-w-9 items-center justify-center gap-0.5 rounded-full px-2 text-base transition',
+                          isMine
+                            ? 'bg-primary/15 ring-1 ring-primary/40'
+                            : 'hover:bg-muted',
+                          pending && 'opacity-60'
+                        )}
+                        aria-label={
+                          userEmail
+                            ? isMine
+                              ? `Remove ${emoji} reaction`
+                              : `React with ${emoji}`
+                            : 'Sign in to react'
+                        }
+                        title={
+                          userEmail
+                            ? isMine
+                              ? 'Click to remove your reaction'
+                              : 'Add reaction'
+                            : 'Sign in to react'
+                        }
+                      >
+                        <span aria-hidden>{emoji}</span>
+                        {count > 0 ? (
+                          <span className="text-xs tabular-nums text-muted-foreground">{count}</span>
+                        ) : null}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
 
               {/* Comments toggle */}
               {editingPostId !== post.id && (

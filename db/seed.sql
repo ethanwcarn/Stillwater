@@ -7,6 +7,7 @@
 TRUNCATE TABLE
   user_post_bookmarks,
   post_comments,
+  post_reactions,
   community_posts,
   requested_sessions,
   therapist_specialties, 

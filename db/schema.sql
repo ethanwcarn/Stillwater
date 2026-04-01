@@ -16,6 +16,7 @@ WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'stillwaters')\gexec
 DROP TABLE IF EXISTS password_reset_tokens;
 DROP TABLE IF EXISTS user_sessions;
 DROP TABLE IF EXISTS user_post_bookmarks;
+DROP TABLE IF EXISTS post_reactions;
 DROP TABLE IF EXISTS post_comments;
 DROP TABLE IF EXISTS community_posts;
 DROP TABLE IF EXISTS therapist_specialties;
@@ -109,6 +110,15 @@ CREATE TABLE user_post_bookmarks (
   PRIMARY KEY (user_id, post_id)
 );
 
+-- 10. Post reactions (one reaction per user per post; counts only, no public roster)
+CREATE TABLE post_reactions (
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  post_id INTEGER NOT NULL REFERENCES community_posts(id) ON DELETE CASCADE,
+  reaction VARCHAR(16) NOT NULL CHECK (reaction IN ('❤️', '👍', '🙌', '🙏', '🥹', '💕')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (user_id, post_id)
+);
+
 -- Indexes for common queries
 CREATE INDEX idx_password_reset_tokens_user ON password_reset_tokens(user_id);
 CREATE INDEX idx_password_reset_tokens_expires_at ON password_reset_tokens(expires_at);
@@ -119,3 +129,4 @@ CREATE INDEX idx_requested_sessions_therapist ON requested_sessions(therapist_id
 CREATE INDEX idx_community_posts_created ON community_posts(created_at DESC);
 CREATE INDEX idx_post_comments_post_id ON post_comments(post_id);
 CREATE INDEX idx_user_post_bookmarks_user ON user_post_bookmarks(user_id);
+CREATE INDEX idx_post_reactions_post_id ON post_reactions(post_id);

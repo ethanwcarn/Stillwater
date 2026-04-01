@@ -11,6 +11,8 @@ export interface PostWithBookmark {
   bookmarked: boolean
   author_name: string | null
   comment_count: number
+  reaction_counts: Record<string, number>
+  my_reaction: string | null
 }
 
 interface PostsPageResponse {
@@ -66,6 +68,35 @@ export async function GET(request: NextRequest) {
       bookmarkedIds = new Set(bookmarksResult.rows.map((r) => r.post_id))
     }
 
+    const reactionCountRows =
+      postIds.length > 0
+        ? await query<{ post_id: number; reaction: string; count: number }>(
+            `SELECT post_id, reaction, COUNT(*)::int AS count
+             FROM post_reactions WHERE post_id = ANY($1::int[])
+             GROUP BY post_id, reaction`,
+            [postIds]
+          )
+        : { rows: [] as { post_id: number; reaction: string; count: number }[] }
+
+    const countsByPost = new Map<number, Record<string, number>>()
+    for (const row of reactionCountRows.rows) {
+      let rec = countsByPost.get(row.post_id)
+      if (!rec) {
+        rec = {}
+        countsByPost.set(row.post_id, rec)
+      }
+      rec[row.reaction] = row.count
+    }
+
+    let myReactionByPost = new Map<number, string>()
+    if (userId && postIds.length > 0) {
+      const mine = await query<{ post_id: number; reaction: string }>(
+        'SELECT post_id, reaction FROM post_reactions WHERE user_id = $1 AND post_id = ANY($2::int[])',
+        [userId, postIds]
+      )
+      myReactionByPost = new Map(mine.rows.map((r) => [r.post_id, r.reaction]))
+    }
+
     const posts: PostWithBookmark[] = paginatedRows.map((row) => ({
       id: row.id,
       author_id: row.author_id,
@@ -75,6 +106,8 @@ export async function GET(request: NextRequest) {
       author_name: row.display_name,
       bookmarked: bookmarkedIds.has(row.id),
       comment_count: parseInt(row.comment_count, 10) || 0,
+      reaction_counts: countsByPost.get(row.id) ?? {},
+      my_reaction: userId ? (myReactionByPost.get(row.id) ?? null) : null,
     }))
 
     const response: PostsPageResponse = {
@@ -161,6 +194,8 @@ export async function POST(request: NextRequest) {
       author_name: postResult.rows[0].display_name,
       bookmarked: false,
       comment_count: 0,
+      reaction_counts: {},
+      my_reaction: null,
     }
 
     return NextResponse.json(createdPost, { status: 201 })

@@ -30,7 +30,7 @@ jobs:
       - name: Build app
         env:
           DATABASE_URL: postgresql://localhost:5432/stillwaters
-          DB_MIGRAGE_URL: postgresql://localhost:5432/stillwaters
+          DB_MIGRATE_URL: postgresql://localhost:5432/stillwaters
           APP_ORIGIN: http://localhost:3000
           MAILGUN_API_KEY: TEST
           MAILGUN_DOMAIN: TEST
@@ -45,6 +45,13 @@ jobs:
           script_stop: true
           script: |
             set -e
+            export NVM_DIR="$HOME/.nvm"
+            if [ ! -s "$NVM_DIR/nvm.sh" ]; then
+              echo "nvm was not found at $NVM_DIR/nvm.sh"
+              exit 1
+            fi
+            . "$NVM_DIR/nvm.sh"
+            nvm use 24.4.1
             cd /var/www/stillwater
             git pull origin main
             npm ci
@@ -53,4 +60,4 @@ jobs:
             set +a
             npm run migrate
             npm run build
-            /home/ubuntu/.nvm/versions/node/v24.4.1/bin/pm2 restart stillwater
+            pm2 restart stillwater --update-env

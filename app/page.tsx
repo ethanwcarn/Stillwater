@@ -1,16 +1,15 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { Search, CalendarPlus, Users } from 'lucide-react'
-import { TherapistCarousel } from '@/components/therapist-carousel'
-import { useAuth } from './providers'
+import Link from "next/link";
+import { Search, CalendarPlus, Users } from "lucide-react";
+import { TherapistCarousel } from "@/components/therapist-carousel";
+import { useAuth } from "./providers";
 
 export default function HomePage() {
-  const { userEmail, authReady } = useAuth()
+  const { userEmail, authReady } = useAuth();
 
   return (
     <div className="min-h-screen">
-
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-secondary/15 to-muted px-4 py-20 text-center md:py-32">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,hsl(var(--secondary)/0.12),transparent_60%)]" />
@@ -22,8 +21,9 @@ export default function HomePage() {
             <span className="text-balance">Support, without judgment.</span>
           </p>
           <p className="mx-auto mt-6 max-w-lg text-base leading-relaxed text-muted-foreground md:text-lg">
-            A safe space where your mental health and spiritual life work together.
-            Connect with faith-informed therapists and a caring community.
+            A safe space where your mental health and spiritual life work
+            together. Connect with faith-informed therapists and a caring
+            community.
           </p>
           {authReady && !userEmail && (
             <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -57,21 +57,21 @@ export default function HomePage() {
             {[
               {
                 icon: Search,
-                title: 'Find Your Therapist',
-                desc: 'Browse faith-informed therapists filtered by tradition, specialty, and availability.',
-                href: '/therapists',
+                title: "Find Your Therapist",
+                desc: "Browse faith-informed therapists filtered by tradition, specialty, and availability.",
+                href: "/therapists",
               },
               {
                 icon: CalendarPlus,
-                title: 'Request a Session',
-                desc: 'Choose your preferred date, time, and discussion topics that matter to you.',
-                href: '/signup',
+                title: "Request a Session",
+                desc: "Choose your preferred date, time, and discussion topics that matter to you.",
+                href: "/request-session",
               },
               {
                 icon: Users,
-                title: 'Join the Community',
-                desc: 'Connect with others who share your journey in faith-centered discussion groups.',
-                href: '/community',
+                title: "Join the Community",
+                desc: "Connect with others who share your journey in faith-centered discussion groups.",
+                href: "/community",
               },
             ].map((step) => (
               <Link
@@ -82,8 +82,12 @@ export default function HomePage() {
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary/20 text-accent transition-colors duration-300 group-hover:bg-secondary/30">
                   <step.icon className="h-7 w-7" />
                 </div>
-                <h3 className="mt-5 font-serif text-lg font-semibold text-foreground">{step.title}</h3>
-                <p className="mt-2 leading-relaxed text-muted-foreground">{step.desc}</p>
+                <h3 className="mt-5 font-serif text-lg font-semibold text-foreground">
+                  {step.title}
+                </h3>
+                <p className="mt-2 leading-relaxed text-muted-foreground">
+                  {step.desc}
+                </p>
               </Link>
             ))}
           </div>
@@ -102,7 +106,10 @@ export default function HomePage() {
                 Faith-informed professionals ready to walk with you
               </p>
             </div>
-            <Link href="/therapists" className="hidden text-sm font-medium text-accent hover:underline md:block">
+            <Link
+              href="/therapists"
+              className="hidden text-sm font-medium text-accent hover:underline md:block"
+            >
               View all
             </Link>
           </div>
@@ -112,7 +119,10 @@ export default function HomePage() {
           <TherapistCarousel />
         </div>
         <div className="mt-4 px-4 text-center md:hidden">
-          <Link href="/therapists" className="text-sm font-medium text-accent hover:underline">
+          <Link
+            href="/therapists"
+            className="text-sm font-medium text-accent hover:underline"
+          >
             View all therapists
           </Link>
         </div>
@@ -130,15 +140,30 @@ export default function HomePage() {
                 See what others are sharing in the Stillwaters community
               </p>
             </div>
-            <Link href="/community" className="hidden text-sm font-medium text-accent hover:underline md:block">
+            <Link
+              href="/community"
+              className="hidden text-sm font-medium text-accent hover:underline md:block"
+            >
               See all
             </Link>
           </div>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             {[
-              { category: 'Prayer', title: 'Finding peace through prayer during anxiety', author: 'Sarah M.' },
-              { category: 'Scripture', title: 'Scriptures that helped me through depression', author: 'Jordan K.' },
-              { category: 'Interfaith', title: 'How my faith tradition views mental health', author: 'Ana R.' },
+              {
+                category: "Prayer",
+                title: "Finding peace through prayer during anxiety",
+                author: "Sarah M.",
+              },
+              {
+                category: "Scripture",
+                title: "Scriptures that helped me through depression",
+                author: "Jordan K.",
+              },
+              {
+                category: "Interfaith",
+                title: "How my faith tradition views mental health",
+                author: "Ana R.",
+              },
             ].map((post) => (
               <Link
                 key={post.title}
@@ -148,8 +173,12 @@ export default function HomePage() {
                 <span className="inline-block rounded-full bg-secondary/20 px-3 py-0.5 text-xs font-medium text-accent">
                   {post.category}
                 </span>
-                <h3 className="mt-3 font-serif text-base font-semibold text-foreground">{post.title}</h3>
-                <p className="mt-3 text-xs text-muted-foreground">{post.author}</p>
+                <h3 className="mt-3 font-serif text-base font-semibold text-foreground">
+                  {post.title}
+                </h3>
+                <p className="mt-3 text-xs text-muted-foreground">
+                  {post.author}
+                </p>
               </Link>
             ))}
           </div>
@@ -163,7 +192,8 @@ export default function HomePage() {
             <span className="text-balance">Begin your journey today</span>
           </h2>
           <p className="mx-auto mt-4 max-w-md text-muted-foreground">
-            Join a growing community of people who believe mental health and faith belong together.
+            Join a growing community of people who believe mental health and
+            faith belong together.
           </p>
           {authReady && !userEmail && (
             <Link
@@ -181,22 +211,28 @@ export default function HomePage() {
         <div className="mx-auto max-w-5xl">
           <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
             <div className="col-span-2 md:col-span-1">
-              <p className="font-serif text-base font-semibold text-foreground">Stillwaters</p>
+              <p className="font-serif text-base font-semibold text-foreground">
+                Stillwaters
+              </p>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                 Faith-integrated mental health support for every journey.
               </p>
             </div>
             {[
-              { title: 'Platform', links: ['Find Therapists', 'Community'] },
-              { title: 'Company', links: ['About Us', 'Blog'] },
-              { title: 'Legal', links: ['Privacy Policy', 'Terms of Service'] },
+              { title: "Platform", links: ["Find Therapists", "Community"] },
+              { title: "Company", links: ["About Us", "Blog"] },
+              { title: "Legal", links: ["Privacy Policy", "Terms of Service"] },
             ].map((col) => (
               <div key={col.title}>
-                <h4 className="text-sm font-semibold text-foreground">{col.title}</h4>
+                <h4 className="text-sm font-semibold text-foreground">
+                  {col.title}
+                </h4>
                 <ul className="mt-3 flex flex-col gap-2">
                   {col.links.map((link) => (
                     <li key={link}>
-                      <span className="text-sm text-muted-foreground">{link}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {link}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -208,7 +244,6 @@ export default function HomePage() {
           </div>
         </div>
       </footer>
-
     </div>
-  )
+  );
 }
